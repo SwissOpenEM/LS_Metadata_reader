@@ -1,13 +1,13 @@
 # Metadata extractors
-simple parsers for the two common life-science EM metadata output formats, written in python
+simple parser for the two common life-science EM metadata output formats, written in python
 
 ## Comments
-Both work on the respecitve files generated for each movie or tilt series acquired - EPU for single particle writes .xml while SerialEM and Tomo5 write .mdoc
+Runs on a directory containing raw files and their instrument written additional information files (.mdoc and .xml respectively), generates a dataset level .json file in that directory.
 
 ## TODO
-- will need to generate an overall file that contains consistent values and range where appropriate across the dataset
-- for now everything is extracted; once standards are defined select for target parameters
-- For the ingestion will require to be matched with user input regarding - Owner, Grant, Sample...
+
+- might add another function for .json written by Athena for Tomo5
+- add lookup tables to consolidate into one schema for upload to scicat
 
 
 
