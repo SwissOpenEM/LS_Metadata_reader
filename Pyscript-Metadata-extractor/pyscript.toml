@@ -1,0 +1,3 @@
+packages = ["lxml"]
+[files]
+"Metadata_extractor_pyscript.py" = ""
