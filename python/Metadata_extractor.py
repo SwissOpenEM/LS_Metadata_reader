@@ -66,12 +66,12 @@ def extract_mdoc(fil):
                 if "Tilt axis angle" in line or "TiltAxisAngle" in line:
                     try:
                         test_axis = (line.split("=")[2]).split(",")[0]
-                        key_value_pairs["Tilt_axis_angle"] = float( test_axis.strip())
+                        key_value_pairs["TiltAxisAngle"] = float( test_axis.strip())
                     except:
                         ValueError
                     try:
                         test_axis = re.split(r'[A-Za-z]', (line.split("=")[2]))[0]
-                        key_value_pairs["Tilt_axis_angle"] = float(test_axis.strip())
+                        key_value_pairs["TiltAxisAngle"] = float(test_axis.strip())
                     except:
                         ValueError
                 # count number of tilts in tiltseries
@@ -80,6 +80,29 @@ def extract_mdoc(fil):
                     if int (test_z.strip() ) > numb:
                         numb = int( test_z.strip())
                     key_value_pairs["NumberOfTilts"] = numb
+
+                 ##Inference based values:
+                  ## Imaging Modes  
+                if "MagIndex" in line: ## ADD PART TO DIFFERENTIATE WITH DARKFIELD AFTER SERIALEM UPDATE
+                    if float(line.split("=")[-1] > 0):
+                        key_value_pairs["ImagingMode"] = "Brightfield"
+                if ("CameraLenght" in line) and ((line.split("=")[-1]) != "NaN"):
+                    key_value_pairs["ImagingMode"] = "Diffraction"
+                if "DarkField" in line: ### Works only for TFS scopes - see serial EM documentation
+                    if float(line.split("=")[-1]== 1):
+                        key_value_pairs["ImagingMode"] = "Darkfield"
+                 ## Illumination modes - EMDB calls these only as "Flood Beam", "Spot Scan" and "Other" translation to be done later, feels slightly off anyways
+                if "EMMode" in line: 
+                    if float(line.split("=")[-1]== 0):
+                        key_value_pairs["EMmode"] = "TEM"
+                    elif float(line.split("=")[-1]== 1):
+                        key_value_pairs["EMmode"] = "EFTEM"
+                    elif float(line.split("=")[-1]== 2):    
+                        key_value_pairs["EMmode"] = "STEM" 
+                    elif float(line.split("=")[-1]== 3):
+                        key_value_pairs["EMmode"] = "Diffraction"
+
+
         #remove useless last recorded value for items with min/max
     checklist = []    
     for k in key_value_pairs:
@@ -174,7 +197,6 @@ def parse_xml(file_in):
 def check_all_files(Listofimage_metadata):
 
 
-    # Dictionary to store values for each file
     dataset_dict = {}
     for data in Listofimage_metadata:       
                     # Check if the key exists in the dict
