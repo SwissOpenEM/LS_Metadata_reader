@@ -123,6 +123,12 @@ func process_mdoc(input string) (map[string]string, error) {
 		}
 		// general search and update for min/max values
 		match := re.FindStringSubmatch(scanner.Text())
+		// Quick check incase the image dimesions are only present in the header
+		image := strings.Contains(scanner.Text(), "ImageSize")
+		if image {
+			mdoc_results["ImageDimensions_X"] = strings.Split(match[2], " ")[0]
+			mdoc_results["ImageDimensions_Y"] = strings.Split(match[2], " ")[1]
+		}
 		if match != nil {
 			if strings.TrimSpace(match[1]) == "[ZValue" {
 				count++
@@ -131,10 +137,80 @@ func process_mdoc(input string) (map[string]string, error) {
 			if !exists {
 				mdoc_results[match[1]] = match[2]
 			} else if value == match[2] {
+				// Grab some Touples
+				energy := strings.Contains(scanner.Text(), "FilterSlitAndLoss")
+				if energy {
+					energytest, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
+					if energytest > float64(0.00) {
+						mdoc_results["EnergyFilterUsed"] = "true"
+						mdoc_results["EnergyFilterSlitWidth"] = strings.Split(match[2], " ")[0]
+					}
+				}
 				continue
 			} else if value != match[2] {
 				test, err := strconv.ParseFloat(strings.TrimSpace(mdoc_results[match[1]]), 64)
 				if err != nil {
+					// Grab the remaining Touples
+					beamshift := strings.Contains(scanner.Text(), "Beamshift") // check for correct syntax only present in newer versions of SerialEM
+					imageShift := strings.Contains(scanner.Text(), "ImageShift")
+					stagepos := strings.Contains(scanner.Text(), "StagePosition")
+					if stagepos {
+						xcheck, xexist := mdoc_results["Stage_x_max"]
+						ycheck, yexist := mdoc_results["Stage_y_max"]
+						if !xexist && !yexist {
+							mdoc_results["Stage_x_max"] = strings.Split(match[2], " ")[0]
+							mdoc_results["Stage_y_max"] = strings.Split(match[2], " ")[1]
+							mdoc_results["Stage_x_min"] = strings.Split(match[2], " ")[0]
+							mdoc_results["Stage_y_min"] = strings.Split(match[2], " ")[1]
+						} else {
+							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
+							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[1]), 64)
+							mdoc_results["Stage_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+							mdoc_results["Stage_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+							mdoc_results["Stage_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+							mdoc_results["Stage_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+						}
+					}
+					if beamshift {
+						xcheck, xexist := mdoc_results["Beamshift_x_max"]
+						ycheck, yexist := mdoc_results["Beamshift_y_max"]
+						if !xexist && !yexist {
+							mdoc_results["Beamshift_x_max"] = strings.Split(match[2], " ")[0]
+							mdoc_results["Beamshift_y_max"] = strings.Split(match[2], " ")[1]
+							mdoc_results["Beamshift_x_min"] = strings.Split(match[2], " ")[0]
+							mdoc_results["Beamshift_y_min"] = strings.Split(match[2], " ")[1]
+						} else {
+							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
+							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[1]), 64)
+							mdoc_results["Beamshift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+							mdoc_results["Beamshift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+							mdoc_results["Beamshift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+							mdoc_results["Beamshift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+						}
+					}
+					if imageShift {
+						xcheck, xexist := mdoc_results["ImageShift_x_max"]
+						ycheck, yexist := mdoc_results["ImageShift_y_max"]
+						if !xexist && !yexist {
+							mdoc_results["ImageShift_x_max"] = strings.Split(match[2], " ")[0]
+							mdoc_results["ImageShift_y_max"] = strings.Split(match[2], " ")[1]
+							mdoc_results["ImageShift_x_min"] = strings.Split(match[2], " ")[0]
+							mdoc_results["ImageShift_y_min"] = strings.Split(match[2], " ")[1]
+						} else {
+							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
+							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[1]), 64)
+							mdoc_results["ImageShift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+							mdoc_results["ImageShift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+							mdoc_results["ImageShift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+							mdoc_results["ImageShift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+						}
+					}
 					continue
 				} else {
 					new, _ := strconv.ParseFloat(strings.TrimSpace(match[2]), 64)
@@ -204,7 +280,7 @@ func process_mdoc(input string) (map[string]string, error) {
 	}
 	// Currently missing Illumination modes (EMDB allowed: "Flood Beam", "Spot Scan", "Other") --
 	// Problem how to differentiate Spot Scan ; most cryoEM cases definitely Flood Beam
-	// Could do "Flood Beam" as baseline and add a catch later; dont know if anyone uses serialEM for spotscan
+	// Could do "Flood Beam" as baseline and add a catch later; dont know if anyone uses serialEM for spotscan anyways
 	EMMode, modeexist := mdoc_results["EMmode"]
 	if modeexist {
 		te, _ := strconv.Atoi(strings.TrimSpace(EMMode))
