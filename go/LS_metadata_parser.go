@@ -137,7 +137,7 @@ func process_mdoc(input string) (map[string]string, error) {
 			if !exists {
 				mdoc_results[match[1]] = match[2]
 			} else if value == match[2] {
-				// Grab some Touples
+				// Grab some Tuples
 				energy := strings.Contains(scanner.Text(), "FilterSlitAndLoss")
 				if energy {
 					energytest, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
@@ -150,7 +150,7 @@ func process_mdoc(input string) (map[string]string, error) {
 			} else if value != match[2] {
 				test, err := strconv.ParseFloat(strings.TrimSpace(mdoc_results[match[1]]), 64)
 				if err != nil {
-					// Grab the remaining Touples
+					// Grab the remaining Tuples
 					beamshift := strings.Contains(scanner.Text(), "Beamshift") // check for correct syntax only present in newer versions of SerialEM
 					imageShift := strings.Contains(scanner.Text(), "ImageShift")
 					stagepos := strings.Contains(scanner.Text(), "StagePosition")
@@ -360,6 +360,67 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 				}
 				test, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
 				if err != nil {
+					// Get the beam and stage tuples from mdocs across multiple images
+					beamshift := strings.Contains(key, "Beamshift") // check for correct syntax only present in newer versions of SerialEM
+					imageShift := strings.Contains(key, "ImageShift")
+					stagepos := strings.Contains(key, "StagePosition")
+					if stagepos {
+						xcheck, xexist := overallmap["Stage_x_max"]
+						ycheck, yexist := overallmap["Stage_y_max"]
+						if !xexist && !yexist {
+							overallmap["Stage_x_max"] = strings.Split(valuenew, " ")[0]
+							overallmap["Stage_y_max"] = strings.Split(valuenew, " ")[1]
+							overallmap["Stage_x_min"] = strings.Split(valuenew, " ")[0]
+							overallmap["Stage_y_min"] = strings.Split(valuenew, " ")[1]
+						} else {
+							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[0]), 64)
+							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[1]), 64)
+							overallmap["Stage_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+							overallmap["Stage_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+							overallmap["Stage_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+							overallmap["Stage_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+						}
+					}
+					if beamshift {
+						xcheck, xexist := overallmap["Beamshift_x_max"]
+						ycheck, yexist := overallmap["Beamshift_y_max"]
+						if !xexist && !yexist {
+							overallmap["Beamshift_x_max"] = strings.Split(valuenew, " ")[0]
+							overallmap["Beamshift_y_max"] = strings.Split(valuenew, " ")[1]
+							overallmap["Beamshift_x_min"] = strings.Split(valuenew, " ")[0]
+							overallmap["Beamshift_y_min"] = strings.Split(valuenew, " ")[1]
+						} else {
+							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[0]), 64)
+							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[1]), 64)
+							overallmap["Beamshift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+							overallmap["Beamshift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+							overallmap["Beamshift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+							overallmap["Beamshift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+						}
+					}
+					if imageShift {
+						xcheck, xexist := overallmap["ImageShift_x_max"]
+						ycheck, yexist := overallmap["ImageShift_y_max"]
+						if !xexist && !yexist {
+							overallmap["ImageShift_x_max"] = strings.Split(valuenew, " ")[0]
+							overallmap["ImageShift_y_max"] = strings.Split(valuenew, " ")[1]
+							overallmap["ImageShift_x_min"] = strings.Split(valuenew, " ")[0]
+							overallmap["ImageShift_y_min"] = strings.Split(valuenew, " ")[1]
+						} else {
+							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[0]), 64)
+							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[1]), 64)
+							overallmap["ImageShift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+							overallmap["ImageShift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+							overallmap["ImageShift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+							overallmap["ImageShift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+						}
+					}
 					continue
 				} else {
 					new, _ := strconv.ParseFloat(strings.TrimSpace(valuenew), 64)
