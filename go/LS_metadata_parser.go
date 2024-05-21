@@ -94,6 +94,26 @@ func process_xml(input string) (map[string]string, error) {
 	}
 	return (leafNodes), err
 }
+func untuple(dict map[string]string, key string, match string) map[string]string {
+	xcheck, xexist := dict[key+"_x_max"]
+	ycheck, yexist := dict[key+"_y_max"]
+	if !xexist && !yexist {
+		dict[key+"_x_max"] = strings.Split(match, " ")[0]
+		dict[key+"_y_max"] = strings.Split(match, " ")[1]
+		dict[key+"_x_min"] = strings.Split(match, " ")[0]
+		dict[key+"_y_min"] = strings.Split(match, " ")[1]
+	} else {
+		xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+		ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+		x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match, " ")[0]), 64)
+		y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match, " ")[1]), 64)
+		dict[key+"_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
+		dict[key+"_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
+		dict[key+"_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
+		dict[key+"_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+	}
+	return dict
+}
 
 // MDOC Part
 func process_mdoc(input string) (map[string]string, error) {
@@ -115,7 +135,7 @@ func process_mdoc(input string) (map[string]string, error) {
 		tiltaxis2 := strings.Contains(scanner.Text(), "Tilt axis angle") // SerialEM
 		if tiltaxis {
 			blabb_split := strings.Split(re.FindStringSubmatch(scanner.Text())[2], "=")[1]
-			mdoc_results["TiltAxisAngle"] = (strings.TrimSpace(strings.Split(blabb_split, "  ")[0])) // this is bound to fail at some point if they dont keep their double space seperation logic
+			mdoc_results["TiltAxisAngle"] = (strings.TrimSpace(strings.Split(blabb_split, "  ")[0])) // this is bound to fail at some point if they dont keep their weird double space seperation logic
 		}
 		if tiltaxis2 {
 			blab_split := strings.Split(re.FindStringSubmatch(scanner.Text())[2], ",")[0]
@@ -123,6 +143,17 @@ func process_mdoc(input string) (map[string]string, error) {
 		}
 		// general search and update for min/max values
 		match := re.FindStringSubmatch(scanner.Text())
+		//Detect which camera was used -- will only work with SerialEM properties update / script usage
+		cam := strings.Contains(scanner.Text(), "CameraIndex")
+		if cam {
+			if strings.TrimSpace(match[2]) == "0" {
+				mdoc_results["CameraUsed"] = mdoc_results["Camera0"]
+
+			} else if strings.TrimSpace(match[2]) == "1" {
+				mdoc_results["CameraUsed"] = mdoc_results["Camera1"]
+			}
+		}
+
 		// Quick check incase the image dimesions are only present in the header
 		image := strings.Contains(scanner.Text(), "ImageSize")
 		if image {
@@ -154,62 +185,8 @@ func process_mdoc(input string) (map[string]string, error) {
 					beamshift := strings.Contains(scanner.Text(), "Beamshift") // check for correct syntax only present in newer versions of SerialEM
 					imageShift := strings.Contains(scanner.Text(), "ImageShift")
 					stagepos := strings.Contains(scanner.Text(), "StagePosition")
-					if stagepos {
-						xcheck, xexist := mdoc_results["Stage_x_max"]
-						ycheck, yexist := mdoc_results["Stage_y_max"]
-						if !xexist && !yexist {
-							mdoc_results["Stage_x_max"] = strings.Split(match[2], " ")[0]
-							mdoc_results["Stage_y_max"] = strings.Split(match[2], " ")[1]
-							mdoc_results["Stage_x_min"] = strings.Split(match[2], " ")[0]
-							mdoc_results["Stage_y_min"] = strings.Split(match[2], " ")[1]
-						} else {
-							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
-							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
-							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[1]), 64)
-							mdoc_results["Stage_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-							mdoc_results["Stage_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-							mdoc_results["Stage_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-							mdoc_results["Stage_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
-						}
-					}
-					if beamshift {
-						xcheck, xexist := mdoc_results["Beamshift_x_max"]
-						ycheck, yexist := mdoc_results["Beamshift_y_max"]
-						if !xexist && !yexist {
-							mdoc_results["Beamshift_x_max"] = strings.Split(match[2], " ")[0]
-							mdoc_results["Beamshift_y_max"] = strings.Split(match[2], " ")[1]
-							mdoc_results["Beamshift_x_min"] = strings.Split(match[2], " ")[0]
-							mdoc_results["Beamshift_y_min"] = strings.Split(match[2], " ")[1]
-						} else {
-							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
-							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
-							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[1]), 64)
-							mdoc_results["Beamshift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-							mdoc_results["Beamshift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-							mdoc_results["Beamshift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-							mdoc_results["Beamshift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
-						}
-					}
-					if imageShift {
-						xcheck, xexist := mdoc_results["ImageShift_x_max"]
-						ycheck, yexist := mdoc_results["ImageShift_y_max"]
-						if !xexist && !yexist {
-							mdoc_results["ImageShift_x_max"] = strings.Split(match[2], " ")[0]
-							mdoc_results["ImageShift_y_max"] = strings.Split(match[2], " ")[1]
-							mdoc_results["ImageShift_x_min"] = strings.Split(match[2], " ")[0]
-							mdoc_results["ImageShift_y_min"] = strings.Split(match[2], " ")[1]
-						} else {
-							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
-							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[0]), 64)
-							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match[2], " ")[1]), 64)
-							mdoc_results["ImageShift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-							mdoc_results["ImageShift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-							mdoc_results["ImageShift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-							mdoc_results["ImageShift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
-						}
+					if beamshift || imageShift || stagepos {
+						mdoc_results = untuple(mdoc_results, match[1], match[2])
 					}
 					continue
 				} else {
@@ -364,62 +341,8 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 					beamshift := strings.Contains(key, "Beamshift") // check for correct syntax only present in newer versions of SerialEM
 					imageShift := strings.Contains(key, "ImageShift")
 					stagepos := strings.Contains(key, "StagePosition")
-					if stagepos {
-						xcheck, xexist := overallmap["Stage_x_max"]
-						ycheck, yexist := overallmap["Stage_y_max"]
-						if !xexist && !yexist {
-							overallmap["Stage_x_max"] = strings.Split(valuenew, " ")[0]
-							overallmap["Stage_y_max"] = strings.Split(valuenew, " ")[1]
-							overallmap["Stage_x_min"] = strings.Split(valuenew, " ")[0]
-							overallmap["Stage_y_min"] = strings.Split(valuenew, " ")[1]
-						} else {
-							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
-							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[0]), 64)
-							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[1]), 64)
-							overallmap["Stage_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-							overallmap["Stage_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-							overallmap["Stage_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-							overallmap["Stage_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
-						}
-					}
-					if beamshift {
-						xcheck, xexist := overallmap["Beamshift_x_max"]
-						ycheck, yexist := overallmap["Beamshift_y_max"]
-						if !xexist && !yexist {
-							overallmap["Beamshift_x_max"] = strings.Split(valuenew, " ")[0]
-							overallmap["Beamshift_y_max"] = strings.Split(valuenew, " ")[1]
-							overallmap["Beamshift_x_min"] = strings.Split(valuenew, " ")[0]
-							overallmap["Beamshift_y_min"] = strings.Split(valuenew, " ")[1]
-						} else {
-							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
-							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[0]), 64)
-							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[1]), 64)
-							overallmap["Beamshift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-							overallmap["Beamshift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-							overallmap["Beamshift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-							overallmap["Beamshift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
-						}
-					}
-					if imageShift {
-						xcheck, xexist := overallmap["ImageShift_x_max"]
-						ycheck, yexist := overallmap["ImageShift_y_max"]
-						if !xexist && !yexist {
-							overallmap["ImageShift_x_max"] = strings.Split(valuenew, " ")[0]
-							overallmap["ImageShift_y_max"] = strings.Split(valuenew, " ")[1]
-							overallmap["ImageShift_x_min"] = strings.Split(valuenew, " ")[0]
-							overallmap["ImageShift_y_min"] = strings.Split(valuenew, " ")[1]
-						} else {
-							xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-							ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
-							x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[0]), 64)
-							y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(valuenew, " ")[1]), 64)
-							overallmap["ImageShift_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-							overallmap["ImageShift_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-							overallmap["ImageShift_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-							overallmap["ImageShift_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
-						}
+					if beamshift || imageShift || stagepos {
+						overallmap = untuple(overallmap, key, valuenew)
 					}
 					continue
 				} else {
@@ -489,6 +412,23 @@ func readin(directory string) ([]map[string]string, []map[string]string, error) 
 	return mdocContents, xmlContents, err
 }
 
+func findDataFolders(inputDir string) ([]string, error) {
+	var dataFolders []string
+
+	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() && info.Name() == "Data" {
+			dataFolders = append(dataFolders, path)
+		}
+
+		return nil
+	})
+
+	return dataFolders, err
+}
+
 // minicheck against hidden files
 func isHidden(name string) bool {
 	return len(name) > 0 && name[0] == '.'
@@ -517,11 +457,32 @@ func main() {
 		return
 	}
 
-	mdoc_files, xml_files, err := readin(os.Args[1])
+	dataFolders, err := findDataFolders(directory)
 	if err != nil {
-		fmt.Println("Are you sure this was the correct directory?", err)
+		fmt.Println("Folder search failed - is this the correct directory?", err)
 		return
 	}
+	var mdoc_files []map[string]string
+	var xml_files []map[string]string
+	if dataFolders == nil {
+		mdoc_files, xml_files, err = readin(directory)
+		if err != nil {
+			fmt.Println("Are you sure this was the correct directory?", err)
+			return
+		}
+	} else {
+		for _, folder := range dataFolders {
+			tmp_mdoc, tmp_xml, err := readin(folder)
+			if err != nil {
+				fmt.Println("Are you sure this was the correct directory?", err)
+				return
+			} else {
+				mdoc_files = append(mdoc_files, tmp_mdoc...)
+				xml_files = append(xml_files, tmp_xml...)
+			}
+		}
+	}
+
 	var out map[string]string
 	if mdoc_files != nil && xml_files == nil {
 		out = merge_to_dataset_level(mdoc_files)
