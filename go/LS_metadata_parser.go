@@ -1,10 +1,13 @@
 package main
 
 import (
+	"archive/zip"
 	"bufio"
 	"encoding/json"
 	"encoding/xml"
+	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math"
 	"os"
@@ -379,13 +382,14 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 }
 
 // Readin - evaluation
-func readin(directory string) ([]map[string]string, []map[string]string, error) {
+func readin(directory string) ([]map[string]string, []map[string]string, []string, error) {
 	var xmlContents []map[string]string
 	var mdocContents []map[string]string
+	var xmlList []string
 
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	for _, file := range files {
 		if !file.IsDir() && !isHidden(file.Name()) {
@@ -398,6 +402,7 @@ func readin(directory string) ([]map[string]string, []map[string]string, error) 
 				} else {
 					fmt.Println("Import of ", filePath, " failed")
 				}
+				xmlList = append(xmlList, filePath)
 			case ".mdoc":
 				mdocContent, err := process_mdoc(filePath)
 				if err == nil {
@@ -409,7 +414,43 @@ func readin(directory string) ([]map[string]string, []map[string]string, error) 
 		}
 	}
 
-	return mdocContents, xmlContents, err
+	return mdocContents, xmlContents, xmlList, err
+}
+
+func zipFiles(files []string) error {
+	archive, err := os.Create("xmls.zip")
+	if err != nil {
+		return err
+	}
+	defer archive.Close()
+	writer := zip.NewWriter(archive)
+	defer writer.Close()
+	for _, file := range files {
+		err = addFileToZip(writer, file)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func addFileToZip(writer *zip.Writer, file string) error {
+	op, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	defer op.Close()
+	test := strings.Split(file, string(filepath.Separator))
+	name := test[len(test)-1]
+	wr, err := writer.Create(name)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(wr, op)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func findDataFolders(inputDir string) ([]string, error) {
@@ -435,14 +476,18 @@ func isHidden(name string) bool {
 }
 
 func main() {
-	// Check that the number of arguments fits expectation
-	if len(os.Args) != 2 {
-		fmt.Println("Usage: go run Metadata_extractor.go <directory>")
+	zFlag := flag.Bool("z", false, "Bool to decide whether to make a zip archive of all xml files - default: false")
+	flag.Parse()
+	posArgs := flag.Args()
+
+	// Check that there are arguments
+	if len(posArgs) == 0 {
+		fmt.Println("Usage: ./Metadata_extractor.go --z <directory> ; --z optional for xml zipping, default: false")
 		return
 	}
 
 	// Get the directory from the command-line argument
-	directory := os.Args[1]
+	directory := posArgs[0]
 
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(directory)
@@ -464,23 +509,30 @@ func main() {
 	}
 	var mdoc_files []map[string]string
 	var xml_files []map[string]string
+	var listxml []string
 	if dataFolders == nil {
-		mdoc_files, xml_files, err = readin(directory)
+		mdoc_files, xml_files, listxml, err = readin(directory)
 		if err != nil {
 			fmt.Println("Are you sure this was the correct directory?", err)
 			return
 		}
 	} else {
 		for _, folder := range dataFolders {
-			tmp_mdoc, tmp_xml, err := readin(folder)
+			tmp_mdoc, tmp_xml, tmp_list, err := readin(folder)
 			if err != nil {
 				fmt.Println("Are you sure this was the correct directory?", err)
 				return
 			} else {
 				mdoc_files = append(mdoc_files, tmp_mdoc...)
 				xml_files = append(xml_files, tmp_xml...)
+				listxml = append(listxml, tmp_list...)
 			}
 		}
+	}
+
+	// whether to generate zip of xmls
+	if *zFlag && listxml != nil {
+		zipFiles(listxml)
 	}
 
 	var out map[string]string
@@ -505,7 +557,7 @@ func main() {
 		return
 	}
 	nameout1, _ := filepath.Abs(directory)
-	counter := strings.Split(nameout1, "/")
+	counter := strings.Split(nameout1, string(filepath.Separator))
 	var nameout string
 	if len(counter) > 0 {
 		nameout = counter[len(counter)-1] + ".json"
