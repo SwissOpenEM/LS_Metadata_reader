@@ -100,20 +100,24 @@ func process_xml(input string) (map[string]string, error) {
 func untuple(dict map[string]string, key string, match string) map[string]string {
 	xcheck, xexist := dict[key+"_x_max"]
 	ycheck, yexist := dict[key+"_y_max"]
-	if !xexist && !yexist {
+	xcheck_min, xmexist := dict[key+"_x_min"]
+	ycheck_min, ymexist := dict[key+"_y_min"]
+	if !xexist && !yexist && !xmexist && !ymexist {
 		dict[key+"_x_max"] = strings.Split(match, " ")[0]
 		dict[key+"_y_max"] = strings.Split(match, " ")[1]
 		dict[key+"_x_min"] = strings.Split(match, " ")[0]
 		dict[key+"_y_min"] = strings.Split(match, " ")[1]
 	} else {
-		xtest, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
-		ytest, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+		xtest_max, _ := strconv.ParseFloat(strings.TrimSpace(xcheck), 64)
+		ytest_max, _ := strconv.ParseFloat(strings.TrimSpace(ycheck), 64)
+		xtest_min, _ := strconv.ParseFloat(strings.TrimSpace(xcheck_min), 64)
+		ytest_min, _ := strconv.ParseFloat(strings.TrimSpace(ycheck_min), 64)
 		x_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match, " ")[0]), 64)
 		y_new, _ := strconv.ParseFloat(strings.TrimSpace(strings.Split(match, " ")[1]), 64)
-		dict[key+"_x_max"] = strconv.FormatFloat(max(xtest, x_new), 'f', 2, 64)
-		dict[key+"_y_max"] = strconv.FormatFloat(max(ytest, y_new), 'f', 2, 64)
-		dict[key+"_x_min"] = strconv.FormatFloat(min(xtest, x_new), 'f', 2, 64)
-		dict[key+"_y_min"] = strconv.FormatFloat(min(ytest, y_new), 'f', 2, 64)
+		dict[key+"_x_max"] = strconv.FormatFloat(max(xtest_max, x_new), 'f', 16, 64)
+		dict[key+"_y_max"] = strconv.FormatFloat(max(ytest_max, y_new), 'f', 16, 64)
+		dict[key+"_x_min"] = strconv.FormatFloat(min(xtest_min, x_new), 'f', 16, 64)
+		dict[key+"_y_min"] = strconv.FormatFloat(min(ytest_min, y_new), 'f', 16, 64)
 	}
 	return dict
 }
@@ -197,16 +201,16 @@ func process_mdoc(input string) (map[string]string, error) {
 					keymin, existmin := mdoc_results[match[1]+"_min"]
 					keymax, existmax := mdoc_results[match[1]+"_max"]
 					if !existmin {
-						mdoc_results[match[1]+"_min"] = strconv.FormatFloat(min(test, new), 'f', 2, 64)
+						mdoc_results[match[1]+"_min"] = strconv.FormatFloat(min(test, new), 'f', 16, 64)
 					} else {
 						oldmin, _ := strconv.ParseFloat(strings.TrimSpace(keymin), 64)
-						mdoc_results[match[1]+"_min"] = strconv.FormatFloat(min(new, oldmin), 'f', 2, 64)
+						mdoc_results[match[1]+"_min"] = strconv.FormatFloat(min(new, oldmin), 'f', 16, 64)
 					}
 					if !existmax {
-						mdoc_results[match[1]+"_max"] = strconv.FormatFloat(max(test, new), 'f', 2, 64)
+						mdoc_results[match[1]+"_max"] = strconv.FormatFloat(max(test, new), 'f', 16, 64)
 					} else {
 						oldmax, _ := strconv.ParseFloat(strings.TrimSpace(keymax), 64)
-						mdoc_results[match[1]+"_max"] = strconv.FormatFloat(max(new, oldmax), 'f', 2, 64)
+						mdoc_results[match[1]+"_max"] = strconv.FormatFloat(max(new, oldmax), 'f', 16, 64)
 					}
 				}
 			}
@@ -214,7 +218,7 @@ func process_mdoc(input string) (map[string]string, error) {
 
 	}
 	// Numberoftilts
-	mdoc_results["NumberOfTilts"] = strconv.FormatFloat(count, 'f', 2, 64)
+	mdoc_results["NumberOfTilts"] = strconv.FormatFloat(count, 'f', 16, 64)
 
 	// get tiltangle at the end if applicable
 	_, existtilt := mdoc_results["TiltAngle"]
@@ -227,7 +231,7 @@ func process_mdoc(input string) (map[string]string, error) {
 		if err != nil {
 			fmt.Println("Tilt angle increment calculation failed")
 		}
-		mdoc_results["Tilt_increment"] = strconv.FormatFloat(math.Abs(tiltmax-tiltmin)/count, 'f', 2, 64)
+		mdoc_results["Tilt_increment"] = strconv.FormatFloat(math.Abs(tiltmax-tiltmin)/count, 'f', 16, 64)
 	}
 	// Software used
 	T, T_exist := mdoc_results["[T"]
@@ -353,16 +357,16 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 					keymin, existmin := overallmap[key+"_min"]
 					keymax, existmax := overallmap[key+"_max"]
 					if !existmin {
-						overallmap[key+"_min"] = strconv.FormatFloat(min(test, new), 'f', 2, 64)
+						overallmap[key+"_min"] = strconv.FormatFloat(min(test, new), 'f', 16, 64)
 					} else {
 						oldmin, _ := strconv.ParseFloat(strings.TrimSpace(keymin), 64)
-						overallmap[key+"_min"] = strconv.FormatFloat(min(new, oldmin), 'f', 2, 64)
+						overallmap[key+"_min"] = strconv.FormatFloat(min(new, oldmin), 'f', 16, 64)
 					}
 					if !existmax {
-						overallmap[key+"_max"] = strconv.FormatFloat(max(test, new), 'f', 2, 64)
+						overallmap[key+"_max"] = strconv.FormatFloat(max(test, new), 'f', 16, 64)
 					} else {
 						oldmax, _ := strconv.ParseFloat(strings.TrimSpace(keymax), 64)
-						overallmap[key+"_max"] = strconv.FormatFloat(max(new, oldmax), 'f', 2, 64)
+						overallmap[key+"_max"] = strconv.FormatFloat(max(new, oldmax), 'f', 16, 64)
 					}
 				}
 			}
