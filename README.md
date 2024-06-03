@@ -11,11 +11,6 @@ Runs on a directory containing raw files and their instrument written additional
 Starting to link outputs to the OSCEM-Schemas https://github.com/osc-em/OSCEM_Schemas/tree/main/Instrument
 
 ## TODO
-- find a way of asigning illumination modes for mdocs
+- find a way of assigning illumination modes for mdocs
 - more inference based values if applicable and needed 
 - folder crawling for serialEM; problem: non standardardized directory architecture/naming
-
-
-
-
-
