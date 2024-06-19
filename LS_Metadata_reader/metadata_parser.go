@@ -1,11 +1,10 @@
-package main
+package LS_Metadata_reader
 
 import (
 	"archive/zip"
 	"bufio"
 	"encoding/json"
 	"encoding/xml"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -62,6 +61,10 @@ func parseElement(element Element, path string, leafNodes map[string]string) {
 }
 
 func process_xml(input string) (map[string]string, error) {
+	// just here to catch some error messages would work just fine without
+	if strings.Contains(input, "BatchPositionsList") {
+		return nil, nil
+	}
 	xmlFile, err := os.Open(input)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -237,7 +240,7 @@ func process_mdoc(input string) (map[string]string, error) {
 	T, T_exist := mdoc_results["[T"]
 	if T_exist {
 		if strings.Contains(T, "TOMOGRAPHY") || strings.Contains(T, "Tomography") {
-			mdoc_results["Software"] = "EPU-Tomo5"
+			mdoc_results["Software"] = "Tomo5"
 		} else if strings.Contains(T, "SerialEM") {
 			mdoc_results["Software"] = "SerialEM"
 		}
@@ -457,8 +460,7 @@ func addFileToZip(writer *zip.Writer, file string) error {
 	return nil
 }
 
-func findDataFolders(inputDir string) ([]string, error) {
-	var dataFolders []string
+func findDataFolders(inputDir string, dataFolders []string) ([]string, error) {
 
 	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -466,8 +468,9 @@ func findDataFolders(inputDir string) ([]string, error) {
 		}
 		if info.IsDir() && info.Name() == "Data" {
 			dataFolders = append(dataFolders, path)
+		} else if info.IsDir() && info.Name() == "Batch" {
+			dataFolders = append(dataFolders, path)
 		}
-
 		return nil
 	})
 
@@ -479,37 +482,38 @@ func isHidden(name string) bool {
 	return len(name) > 0 && name[0] == '.'
 }
 
-func main() {
-	zFlag := flag.Bool("z", false, "Bool to decide whether to make a zip archive of all xml files - default: false")
-	flag.Parse()
-	posArgs := flag.Args()
-
-	// Check that there are arguments
-	if len(posArgs) == 0 {
-		fmt.Println("Usage: ./Metadata_extractor.go --z <directory> ; --z optional for xml zipping, default: false")
-		return
-	}
-
-	// Get the directory from the command-line argument
-	directory := posArgs[0]
+func Reader(directory string, zFlag bool, fFlag bool) ([]byte, error) {
 
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(directory)
 	if os.IsNotExist(err) {
 		fmt.Printf("Error: Directory '%s' does not exist.\n", directory)
-		return
+		return nil, err
 	}
 
 	// Check if the provided path is a directory
 	if !fileInfo.IsDir() {
 		fmt.Printf("Error: '%s' is not a directory.\n", directory)
-		return
+		return nil, err
 	}
-
-	dataFolders, err := findDataFolders(directory)
+	// this part is to make sure there is no confusion on the instrument computer search when running on the Athena server folder with "./"
+	directory_safe, _ := filepath.Abs(directory)
+	correct := strings.Split(directory_safe, string(filepath.Separator))
+	target := correct[len(correct)-1]
+	var dataFolders []string
+	dataFolders, err = findDataFolders(directory, dataFolders)
 	if err != nil {
 		fmt.Println("Folder search failed - is this the correct directory?", err)
-		return
+		return nil, err
+	}
+	parallel := os.Getenv("MPCPATH")
+	if parallel != "" {
+		dataFolders, err = findDataFolders(parallel+target, dataFolders)
+		dataFolders = append(dataFolders, directory)
+		if err != nil {
+			fmt.Println("There should be a folder on your instrument control computer with the same name - something went wrong here", err)
+			return nil, err
+		}
 	}
 	var mdoc_files []map[string]string
 	var xml_files []map[string]string
@@ -518,14 +522,14 @@ func main() {
 		mdoc_files, xml_files, listxml, err = readin(directory)
 		if err != nil {
 			fmt.Println("Are you sure this was the correct directory?", err)
-			return
+			return nil, err
 		}
 	} else {
 		for _, folder := range dataFolders {
 			tmp_mdoc, tmp_xml, tmp_list, err := readin(folder)
 			if err != nil {
 				fmt.Println("Are you sure this was the correct directory?", err)
-				return
+				return nil, err
 			} else {
 				mdoc_files = append(mdoc_files, tmp_mdoc...)
 				xml_files = append(xml_files, tmp_xml...)
@@ -535,7 +539,7 @@ func main() {
 	}
 
 	// whether to generate zip of xmls
-	if *zFlag && listxml != nil {
+	if zFlag && listxml != nil {
 		zipFiles(listxml)
 	}
 
@@ -545,35 +549,34 @@ func main() {
 	} else if xml_files != nil && mdoc_files == nil {
 		out = merge_to_dataset_level(xml_files)
 	} else if xml_files != nil && mdoc_files != nil {
-		out := merge_to_dataset_level(mdoc_files)
-		b := merge_to_dataset_level(xml_files)
+		out = merge_to_dataset_level(xml_files)
+		b := merge_to_dataset_level(mdoc_files)
 		for x, y := range b {
 			out[x] = y
 		}
 	} else {
 		fmt.Println("Something went wrong, nothing was read out")
-		os.Exit(1)
+		return nil, err
 	}
 
 	jsonData, err := json.MarshalIndent(out, "", "    ")
 	if err != nil {
 		fmt.Println("Error marshaling to JSON:", err)
-		return
+		return nil, err
 	}
-	nameout1, _ := filepath.Abs(directory)
-	counter := strings.Split(nameout1, string(filepath.Separator))
 	var nameout string
-	if len(counter) > 0 {
-		nameout = counter[len(counter)-1] + ".json"
+	if len(correct) > 0 {
+		nameout = target + "_full.json"
 	} else {
 		fmt.Println("Name generation failed, returning to default")
 		nameout = "Dataset_out.json"
 	}
-	err = os.WriteFile(nameout, jsonData, 0644)
-	if err != nil {
-		fmt.Println("Error writing JSON to file:", err)
-		return
+	if fFlag {
+		err = os.WriteFile(nameout, jsonData, 0644)
+		if err != nil {
+			fmt.Println("Error writing JSON to file:", err)
+		}
+		fmt.Println("Extracted full data has been written to ", nameout)
 	}
-
-	fmt.Println("Extracted data has been written to ", nameout)
+	return jsonData, nil
 }
