@@ -20,7 +20,7 @@ func main() {
 
 	// Check that there are arguments
 	if len(posArgs) == 0 {
-		fmt.Println("Usage: ./LS_reader.go --z --f <directory>")
+		fmt.Println("Usage: ./LS_reader --z --f <directory>")
 		return
 	}
 	// Get the directory from the command-line argument
