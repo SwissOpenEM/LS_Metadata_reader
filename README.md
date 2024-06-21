@@ -5,7 +5,7 @@ simple parser for the two common life-science EM metadata output formats, writte
 Benefits from setting an environmental variable "MPCPATH" to define the path of data acquistisions mirrored on the microscope PC in EPU. Will work regardless if pointed to the xmls/mdocs otherwise.
 
 ## Usage
-Chose the appropriate binary from the [Releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases/tag/v0.1.1), then:
+Chose the appropriate binary from the [Releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases), then:
 LS_reader_Vesion --z --f <directory>
 
 ## Comments
