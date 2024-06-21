@@ -30,6 +30,7 @@ type CSVRecord struct {
 	Field13 string
 	Field14 string
 	Field15 string
+	Field16 string
 }
 
 func SetField(obj interface{}, parent, name, value, unit string, prio bool) error {
@@ -142,8 +143,15 @@ func Convert(jsonin []byte, content embed.FS) error {
 
 	for k, v := range jsonData {
 		for _, test := range csvRecords {
-			if test.Field14 != "" && test.Field5 == k {
-				v, err = unitcrunch(v, test)
+			if test.Field15 != "" && test.Field5 == k {
+				v, err = unitcrunch(v, test.Field15)
+				if err != nil {
+					fmt.Println("Unit crunching failed: ", err)
+					continue
+				}
+			}
+			if test.Field16 != "" && (test.Field6 == k || test.Field13 == k) {
+				v, err = unitcrunch(v, test.Field16)
 				if err != nil {
 					fmt.Println("Unit crunching failed: ", err)
 					continue
@@ -272,13 +280,14 @@ func readCSVFile(content embed.FS) ([]CSVRecord, error) {
 			Field13: record[12],
 			Field14: record[13],
 			Field15: record[14],
+			Field16: record[15],
 		})
 	}
 	return csvRecords, nil
 }
-func unitcrunch(v string, test CSVRecord) (string, error) {
+func unitcrunch(v string, fac string) (string, error) {
 	check, err := strconv.ParseFloat(v, 64)
-	factor, _ := strconv.ParseFloat(test.Field15, 64)
+	factor, _ := strconv.ParseFloat(fac, 64)
 	if err != nil {
 		return v, err
 	}
