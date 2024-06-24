@@ -1,0 +1,6 @@
+SerialEMProperties
+
+GlobalAutodocEntry Camera0 = K3 GAT23390027
+GlobalAutodocEntry Camera1 = CETA Camera
+GlobalAutodocEntry Source = FEG
+

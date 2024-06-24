@@ -1,0 +1,11 @@
+MacroName OpenEM-SPA-Parameters
+GetFastScopeStatus 
+AddToNextFrameStackMdoc EMMode $fastEMmode
+AddToNextFrameStackMdoc DarkField $fastDarkField
+AddToNextFrameStackMdoc Camera0  K3 GAT23390027
+AddToNextFrameStackMdoc Camera1  CETA Camera
+AddToNextFrameStackMdoc Voltage  200
+AddToNextFrameStackMdoc Version  SerialEM Version 4.2.0beta 64-bit,  built Apr 22 2024  03:31:44
+AddToNextFrameStackMdoc Source  FEG
+
+WriteFrameMdoc 

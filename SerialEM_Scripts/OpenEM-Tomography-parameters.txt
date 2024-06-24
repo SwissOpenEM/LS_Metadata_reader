@@ -1,0 +1,6 @@
+MacroName OpenEM-Tomo-parameters
+GetFastScopeStatus 
+AddToAutodoc EMMode $fastEMmode
+AddToAutodoc DarkField $fastDarkField
+WriteAutodoc
+
