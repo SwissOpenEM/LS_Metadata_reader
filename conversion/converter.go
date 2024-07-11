@@ -139,7 +139,8 @@ func Convert(jsonin []byte, content embed.FS) error {
 	}
 
 	var testing generated.Instrument
-	mh := make(map[string]generated.Instrument)
+	var acq_testing generated.Acquisition
+	mh := make(map[string]interface{})
 
 	for k, v := range jsonData {
 		for _, test := range csvRecords {
@@ -167,18 +168,28 @@ func Convert(jsonin []byte, content embed.FS) error {
 						if test.Field4 != "" {
 							err := SetField(&testing, test.Field3, test.Field4, v, test.Field14, prio)
 							if err != nil {
-								fmt.Println(err)
+								err2 := SetField(&acq_testing, test.Field3, test.Field4, v, test.Field14, prio)
+								if err2 != nil {
+									fmt.Println(err, err2)
+								}
+
 							}
 						} else {
 							err := SetField(&testing, test.Field2, test.Field3, v, test.Field14, prio)
 							if err != nil {
-								fmt.Println(err)
+								err2 := SetField(&acq_testing, test.Field2, test.Field3, v, test.Field14, prio)
+								if err2 != nil {
+									fmt.Println(err, err2)
+								}
 							}
 						}
 					} else {
 						err := SetField(&testing, "", test.Field2, v, test.Field14, prio)
 						if err != nil {
-							fmt.Println(err)
+							err2 := SetField(&acq_testing, "", test.Field2, v, test.Field14, prio)
+							if err2 != nil {
+								fmt.Println(err, err2)
+							}
 						}
 					}
 				}
@@ -196,6 +207,7 @@ func Convert(jsonin []byte, content embed.FS) error {
 	SetField(&testing, "", "CS", fixvalues["CS"], "mm", false)
 	//
 	mh["Instrument"] = testing
+	mh["Acquisition"] = acq_testing
 	// Filter out fields that are nil
 	wut, err := json.Marshal(mh)
 	if err != nil {
