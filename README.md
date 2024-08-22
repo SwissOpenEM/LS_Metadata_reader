@@ -15,7 +15,10 @@ Runs on a directory containing raw files and their instrument written additional
 SerialEM properties examples are to be added to the existing properties files of your SerialEM installation (update values to reflect your instrument parameters). The two scripts are to be run after each image collection (the lowest tick mark on the SerialEM automization script selection) with the respective name indicating when to use which of the two. Otherwise SerialEM ouput will lack a few required fields for the schema. !!! Requires SerialEM 4.2.0 or newer !!!
 
 ## Schema-Links 
-Output is conform to this schema https://github.com/osc-em/OSCEM_Schemas/tree/main/Instrument
+Output is conform to this schema https://github.com/osc-em/OSCEM_Schemas/
+
+Specific schema used to generate structs for conversion: https://github.com/osc-em/OSCEM_Schemas/blob/linkml_yaml/src/oscem_schemas/schema/oscem_schemas_tomo.yaml 
+with LinkML gen-golang
 
 ## TODO
 - find a way of assigning illumination modes for mdocs

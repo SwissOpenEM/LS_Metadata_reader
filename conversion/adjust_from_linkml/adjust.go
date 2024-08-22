@@ -26,6 +26,7 @@ func main() {
 	fileContent = strings.ReplaceAll(fileContent, "bool", "basetypes.Bool")
 	fileContent = strings.ReplaceAll(fileContent, "string", "basetypes.String")
 	fileContent = strings.ReplaceAll(fileContent, "oscem-schemas", "oscem")
+	fileContent = strings.ReplaceAll(fileContent, "time.Date", "basetypes.String")
 
 	err = ioutil.WriteFile(filePath, []byte(fileContent), 0644)
 	if err != nil {

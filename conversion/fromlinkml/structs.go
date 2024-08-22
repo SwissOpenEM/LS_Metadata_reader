@@ -1,8 +1,6 @@
 package oscem
+import "LS_reader/conversion/basetypes"
 
-import (
-	"LS_reader/conversion/basetypes"
-)
 
 /*
  * The min, max and increment of the tilt angle in a tomography session. Unit is degree.
@@ -15,9 +13,10 @@ type TiltAngle struct {
 	/*
 	 * Maximal value of a given dataset property
 	 */
-	Maximal   basetypes.Float64 `json:"maximal"`
+	Maximal basetypes.Float64 `json:"maximal"`
 	Increment basetypes.Float64 `json:"increment"`
 }
+
 
 type Acquisition struct {
 	/*
@@ -130,6 +129,7 @@ type Acquisition struct {
 	GainrefFlipRotate basetypes.String `json:"gainref_flip_rotate"`
 }
 
+
 type NominalDefocus struct {
 	/*
 	 * Minimal value of a given dataset property
@@ -140,6 +140,7 @@ type NominalDefocus struct {
 	 */
 	Maximal basetypes.Float64 `json:"maximal"`
 }
+
 
 type CalibratedDefocus struct {
 	/*
@@ -152,6 +153,7 @@ type CalibratedDefocus struct {
 	Maximal basetypes.Float64 `json:"maximal"`
 }
 
+
 type TemperatureRange struct {
 	/*
 	 * Minimal value of a given dataset property
@@ -162,6 +164,7 @@ type TemperatureRange struct {
 	 */
 	Maximal basetypes.Float64 `json:"maximal"`
 }
+
 
 type EnergyFilter struct {
 	/*
@@ -178,6 +181,7 @@ type EnergyFilter struct {
 	Width basetypes.Int `json:"width"`
 }
 
+
 type ImageSize struct {
 	/*
 	 * The height of a given item - unit depends on item
@@ -188,6 +192,7 @@ type ImageSize struct {
 	 */
 	Width basetypes.Int `json:"width"`
 }
+
 
 type SpecialistOptics struct {
 	/*
@@ -204,6 +209,7 @@ type SpecialistOptics struct {
 	ChromaticAberrationCorrector ChromaticAberrationCorrector `json:"chromatic_aberration_corrector"`
 }
 
+
 type Phaseplate struct {
 	/*
 	 * whether a specific instrument was used during data acquisition
@@ -214,6 +220,7 @@ type Phaseplate struct {
 	 */
 	Model basetypes.String `json:"model"`
 }
+
 
 type SphericalAberrationCorrector struct {
 	/*
@@ -226,6 +233,7 @@ type SphericalAberrationCorrector struct {
 	Model basetypes.String `json:"model"`
 }
 
+
 type ChromaticAberrationCorrector struct {
 	/*
 	 * whether a specific instrument was used during data acquisition
@@ -237,6 +245,7 @@ type ChromaticAberrationCorrector struct {
 	Model basetypes.String `json:"model"`
 }
 
+
 type Beamshift struct {
 	XMin basetypes.Float64 `json:"x_min"`
 	XMax basetypes.Float64 `json:"x_max"`
@@ -244,12 +253,14 @@ type Beamshift struct {
 	YMax basetypes.Float64 `json:"y_max"`
 }
 
+
 type Beamtilt struct {
 	XMin basetypes.Float64 `json:"x_min"`
 	XMax basetypes.Float64 `json:"x_max"`
 	YMin basetypes.Float64 `json:"y_min"`
 	YMax basetypes.Float64 `json:"y_max"`
 }
+
 
 type Imageshift struct {
 	XMin basetypes.Float64 `json:"x_min"`
@@ -496,6 +507,7 @@ type Sample struct {
 	Grid Grid `json:"grid"`
 }
 
+
 type Person struct {
 	/*
 	 * name
@@ -518,6 +530,7 @@ type Person struct {
 	 */
 	WorkPhone basetypes.String `json:"work_phone"`
 }
+
 
 type Author struct {
 	/*
@@ -624,8 +637,8 @@ type QuantityValue struct {
  * OSC-EM Metadata for a dataset
  */
 type EMDataset struct {
-	Acquisition Acquisition `json:"acquisition"`
-	Instrument  Instrument  `json:"instrument"`
+	Acquisition AcquisitionTomo `json:"acquisition"`
+	Instrument Instrument `json:"instrument"`
 	/*
 	 * Sample information
 	 */
@@ -639,3 +652,129 @@ type EMDataset struct {
 	 */
 	Authors []Author `json:"authors"`
 }
+
+
+type AcquisitionTomo struct {
+	/*
+	 * parent types
+	 */
+	Acquisition
+	/*
+	 * The tilt axis angle of a tomography series
+	 */
+	TiltAxisAngle basetypes.Float64 `json:"tilt_axis_angle"`
+	/*
+	 * The min, max and increment of the tilt angle in a tomography session. Unit is degree.
+	 */
+	TiltAngle TiltAngle `json:"tilt_angle"`
+	/*
+	 * Target defocus set, min and max values in µm.
+	 */
+	NominalDefocus NominalDefocus `json:"nominal_defocus"`
+	/*
+	 * Machine estimated defocus, min and max values in µm. Has a tendency to be off.
+	 */
+	CalibratedDefocus CalibratedDefocus `json:"calibrated_defocus"`
+	/*
+	 * Magnification level as indicated by the instrument, no unit
+	 */
+	NominalMagnification basetypes.Int `json:"nominal_magnification"`
+	/*
+	 * Calculated magnification, no unit
+	 */
+	CalibratedMagnification basetypes.Int `json:"calibrated_magnification"`
+	/*
+	 * Speciman holder model
+	 */
+	Holder basetypes.String `json:"holder"`
+	/*
+	 * Type of cryogen used in the holder - if the holder is cooled seperately
+	 */
+	HolderCryogen basetypes.String `json:"holder_cryogen"`
+	/*
+	 * Environmental temperature just before vitrification, in K
+	 */
+	Temperature basetypes.Float64 `json:"temperature"`
+	/*
+	 * Software used for instrument control,
+	 */
+	MicroscopeSoftware basetypes.String `json:"microscope_software"`
+	/*
+	 * Make and model of the detector used
+	 */
+	Detector basetypes.String `json:"detector"`
+	/*
+	 * Operating mode of the detector
+	 */
+	DetectorMode basetypes.String `json:"detector_mode"`
+	/*
+	 * Average dose per image/movie/tilt - given in electrons per square Angstrom
+	 */
+	DosePerMovie basetypes.Float64 `json:"dose_per_movie"`
+	/*
+	 * Wether an energy filter was used and its specifics.
+	 */
+	EnergyFilter EnergyFilter `json:"energy_filter"`
+	/*
+	 * The size of the image in pixels, height and width given.
+	 */
+	ImageSize ImageSize `json:"image_size"`
+	/*
+	 * Time and date of the data acquisition
+	 */
+	Datetime basetypes.String `json:"datetime"`
+	/*
+	 * Time of data acquisition per movie/tilt - in s
+	 */
+	ExposureTime basetypes.Float64 `json:"exposure_time"`
+	/*
+	 * Cryogen used in cooling the instrument and sample, usually nitrogen
+	 */
+	Cryogen basetypes.String `json:"cryogen"`
+	/*
+	 * Number of frames that on average constitute a full movie, can be a bit hard to define for some detectors
+	 */
+	FramesPerMovie basetypes.Int `json:"frames_per_movie"`
+	/*
+	 * Number of grids imaged for this project - here with qualifier during this data acquisition
+	 */
+	GridsImaged basetypes.Int `json:"grids_imaged"`
+	/*
+	 * Number of images generated total for this data collection - might need a qualifier for tilt series to determine whether full series or individual tilts are counted
+	 */
+	ImagesGenerated basetypes.Int `json:"images_generated"`
+	/*
+	 * Level of binning on the images applied during data collection
+	 */
+	BinningCamera basetypes.Float64 `json:"binning_camera"`
+	/*
+	 * Pixel size, in Angstrom
+	 */
+	PixelSize basetypes.Float64 `json:"pixel_size"`
+	/*
+	 * Any type of special optics, such as a phaseplate
+	 */
+	SpecialistOptics SpecialistOptics `json:"specialist_optics"`
+	/*
+	 * Movement of the beam above the sample for data collection purposes that does not require movement of the stage. Given in mrad.
+	 */
+	Beamshift Beamshift `json:"beamshift"`
+	/*
+	 * Another way to move the beam above the sample for data collection purposes that does not require movement of the stage. Given in mrad.
+	 */
+	Beamtilt Beamtilt `json:"beamtilt"`
+	/*
+	 * Movement of the Beam below the image in order to shift the image on the detector. Given in µm.
+	 */
+	Imageshift Imageshift `json:"imageshift"`
+	/*
+	 * Number of Beamtilt groups present in this dataset - for optimized processing split dataset basetypes.Into groups of same tilt angle. Despite its name Beamshift is often used to achive this result.
+	 */
+	Beamtiltgroups basetypes.Int `json:"beamtiltgroups"`
+	/*
+	 * Whether and how you have to flip or rotate the gainref in order to align with your acquired images
+	 */
+	GainrefFlipRotate basetypes.String `json:"gainref_flip_rotate"`
+}
+
+
