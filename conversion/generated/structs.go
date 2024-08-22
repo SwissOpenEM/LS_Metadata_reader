@@ -6,24 +6,6 @@ import (
 )
 
 
-type Author struct {
-	Name basetypes.String
-	FirstName basetypes.String
-	LastName basetypes.String
-	Email basetypes.String
-	Phone basetypes.String
-	ORCID basetypes.String
-	Role basetypes.String
-	Organization *Organization
-}
-
-type Overall_Molecule struct {
-	Type basetypes.String
-	Name basetypes.String
-	Source basetypes.String
-	Molecular_weight basetypes.Float64
-}
-
 type Molecules struct {
 	Name basetypes.String
 	Type basetypes.String
@@ -34,6 +16,67 @@ type Molecules struct {
 	Expression_system basetypes.String
 	Taxonomy_ID_expression basetypes.String
 	Gene_name basetypes.String
+}
+
+type Nominal_defocus struct {
+	Minimal basetypes.Float64
+	Maximal basetypes.Float64
+}
+
+type Temperature struct {
+	Minimal basetypes.Float64
+	Maximal basetypes.Float64
+}
+
+type Tilt_angle struct {
+	Minimal basetypes.Float64
+	Maximal basetypes.Float64
+	Increment basetypes.Float64
+}
+
+type Chromatic_Aberration_Corrector struct {
+	Used basetypes.Bool
+	Type basetypes.String
+}
+
+type Image_shift struct {
+	X_max basetypes.Float64
+	X_min basetypes.Float64
+	Y_max basetypes.Float64
+	Y_min basetypes.Float64
+}
+
+type Grant struct {
+	Grant_ID basetypes.String
+	Funding_agency basetypes.String
+}
+
+type Organization struct {
+	Name_org basetypes.String
+	Type_org basetypes.String
+	Country basetypes.String
+}
+
+type Sample_Wild struct {
+	CollectionLocation basetypes.String
+	CollectionDetails basetypes.String
+	SamplePreparation basetypes.String
+}
+
+type Phaseplate struct {
+	Used basetypes.Bool
+	Type basetypes.String
+}
+
+type Author struct {
+	Name basetypes.String
+	FirstName basetypes.String
+	LastName basetypes.String
+	Email basetypes.String
+	Phone basetypes.String
+	ORCID basetypes.String
+	Role basetypes.String
+	Organization *Organization
 }
 
 type Instrument struct {
@@ -51,34 +94,30 @@ type Calibrated_defocus struct {
 	Maximal basetypes.Float64
 }
 
-type Temperature struct {
-	Minimal basetypes.Float64
-	Maximal basetypes.Float64
+type Ligands struct {
+	present basetypes.Bool
+	SMILE basetypes.String
+	Reference basetypes.String
 }
 
-type Energy_filter struct {
-	Used basetypes.Bool
-	Model basetypes.String
-	Width basetypes.Float64
+type Specimen struct {
+	Buffer basetypes.String
+	Concentration basetypes.Float64
+	pH basetypes.Float64
+	Vitrification basetypes.Bool
+	Vitrification_cryogen basetypes.String
+	Humidity basetypes.Float64
+	Staining basetypes.Bool
+	Embedding basetypes.Bool
+	Shadowing basetypes.Bool
 }
 
-type Chromatic_Aberration_Corrector struct {
-	Used basetypes.Bool
-	Type basetypes.String
-}
-
-type Grid struct {
-	Manufacturer basetypes.String
-	Material basetypes.String
-	Mesh basetypes.Int
-	Film_support basetypes.Bool
-	Film_material basetypes.String
-	Film_topology basetypes.String
-	Film_thickness basetypes.String
-	Pretreatment_type basetypes.String
-	Pretreatment_time basetypes.Float64
-	Pretreatment_pressure basetypes.Float64
-	Pretreatment_atmosphere basetypes.String
+type Sample struct {
+	Overall_Molecule *Overall_Molecule
+	Molecules *Molecules
+	Ligands *Ligands
+	Specimen *Specimen
+	Grid *Grid
 }
 
 type Acquisition struct {
@@ -114,38 +153,10 @@ type Acquisition struct {
 	GainRef_FlipRotate basetypes.String
 }
 
-type Specialist_Optics struct {
-	Phaseplate *Phaseplate
-	Spherical_Aberration_Corrector *Spherical_Aberration_Corrector
-	Chromatic_Aberration_Corrector *Chromatic_Aberration_Corrector
-}
-
-type Grant struct {
-	Grant_ID basetypes.String
-	Funding_agency basetypes.String
-}
-
-type Ligands struct {
-	present basetypes.Bool
-	SMILE basetypes.String
-	Reference basetypes.String
-}
-
-type Specimen struct {
-	Buffer basetypes.String
-	Concentration basetypes.Float64
-	pH basetypes.Float64
-	Vitrification basetypes.Bool
-	Vitrification_cryogen basetypes.String
-	Humidity basetypes.Float64
-	Staining basetypes.Bool
-	Embedding basetypes.Bool
-	Shadowing basetypes.Bool
-}
-
-type Nominal_defocus struct {
-	Minimal basetypes.Float64
-	Maximal basetypes.Float64
+type Energy_filter struct {
+	Used basetypes.Bool
+	Model basetypes.String
+	Width basetypes.Float64
 }
 
 type Image_size struct {
@@ -153,34 +164,10 @@ type Image_size struct {
 	Width basetypes.Int
 }
 
-type Tilt_angle struct {
-	Minimal basetypes.Float64
-	Maximal basetypes.Float64
-	Increment basetypes.Float64
-}
-
-type Beamtilt struct {
-	X basetypes.Float64
-	Y basetypes.Float64
-}
-
-type Sample struct {
-	Overall_Molecule *Overall_Molecule
-	Molecules *Molecules
-	Ligands *Ligands
-	Specimen *Specimen
-	Grid *Grid
-}
-
-type Sample_Wild struct {
-	CollectionLocation basetypes.String
-	CollectionDetails basetypes.String
-	SamplePreparation basetypes.String
-}
-
-type Phaseplate struct {
-	Used basetypes.Bool
-	Type basetypes.String
+type Specialist_Optics struct {
+	Phaseplate *Phaseplate
+	Spherical_Aberration_Corrector *Spherical_Aberration_Corrector
+	Chromatic_Aberration_Corrector *Chromatic_Aberration_Corrector
 }
 
 type Spherical_Aberration_Corrector struct {
@@ -195,16 +182,29 @@ type Beamshift struct {
 	Y_min basetypes.Float64
 }
 
-type Image_shift struct {
-	X_max basetypes.Float64
-	X_min basetypes.Float64
-	Y_max basetypes.Float64
-	Y_min basetypes.Float64
+type Beamtilt struct {
+	X basetypes.Float64
+	Y basetypes.Float64
 }
 
-type Organization struct {
-	Name_org basetypes.String
-	Type_org basetypes.String
-	Country basetypes.String
+type Overall_Molecule struct {
+	Type basetypes.String
+	Name basetypes.String
+	Source basetypes.String
+	Molecular_weight basetypes.Float64
+}
+
+type Grid struct {
+	Manufacturer basetypes.String
+	Material basetypes.String
+	Mesh basetypes.Int
+	Film_support basetypes.Bool
+	Film_material basetypes.String
+	Film_topology basetypes.String
+	Film_thickness basetypes.String
+	Pretreatment_type basetypes.String
+	Pretreatment_time basetypes.Float64
+	Pretreatment_pressure basetypes.Float64
+	Pretreatment_atmosphere basetypes.String
 }
 

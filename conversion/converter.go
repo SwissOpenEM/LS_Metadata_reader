@@ -3,7 +3,7 @@ package conversion
 import (
 	"LS_reader/configuration"
 	"LS_reader/conversion/basetypes"
-	"LS_reader/conversion/generated"
+	oscem "LS_reader/conversion/fromlinkml"
 	"embed"
 	"encoding/csv"
 	"encoding/json"
@@ -12,6 +12,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/stoewer/go-strcase"
 )
 
 type CSVRecord struct {
@@ -138,8 +140,8 @@ func Convert(jsonin []byte, content embed.FS) error {
 		return err
 	}
 
-	var testing generated.Instrument
-	var acq_testing generated.Acquisition
+	var testing oscem.Instrument
+	var acq_testing oscem.Acquisition
 	mh := make(map[string]interface{})
 
 	for k, v := range jsonData {
@@ -166,27 +168,27 @@ func Convert(jsonin []byte, content embed.FS) error {
 				if test.Field2 != "" {
 					if test.Field3 != "" {
 						if test.Field4 != "" {
-							err := SetField(&testing, test.Field3, test.Field4, v, test.Field14, prio)
+							err := SetField(&testing, strcase.UpperCamelCase(test.Field3), strcase.UpperCamelCase(test.Field4), v, test.Field14, prio)
 							if err != nil {
-								err2 := SetField(&acq_testing, test.Field3, test.Field4, v, test.Field14, prio)
+								err2 := SetField(&acq_testing, strcase.UpperCamelCase(test.Field3), strcase.UpperCamelCase(test.Field4), v, test.Field14, prio)
 								if err2 != nil {
 									fmt.Println(err, err2)
 								}
 
 							}
 						} else {
-							err := SetField(&testing, test.Field2, test.Field3, v, test.Field14, prio)
+							err := SetField(&testing, strcase.UpperCamelCase(test.Field2), strcase.UpperCamelCase(test.Field3), v, test.Field14, prio)
 							if err != nil {
-								err2 := SetField(&acq_testing, test.Field2, test.Field3, v, test.Field14, prio)
+								err2 := SetField(&acq_testing, strcase.UpperCamelCase(test.Field2), strcase.UpperCamelCase(test.Field3), v, test.Field14, prio)
 								if err2 != nil {
 									fmt.Println(err, err2)
 								}
 							}
 						}
 					} else {
-						err := SetField(&testing, "", test.Field2, v, test.Field14, prio)
+						err := SetField(&testing, "", strcase.UpperCamelCase(test.Field2), v, test.Field14, prio)
 						if err != nil {
-							err2 := SetField(&acq_testing, "", test.Field2, v, test.Field14, prio)
+							err2 := SetField(&acq_testing, "", strcase.UpperCamelCase(test.Field2), v, test.Field14, prio)
 							if err2 != nil {
 								fmt.Println(err, err2)
 							}
@@ -203,11 +205,11 @@ func Convert(jsonin []byte, content embed.FS) error {
 	if errun != nil {
 		fmt.Println("config was not set and could not be obtained - make sure the config is set at ~/.config/LS_reader.conf")
 	}
-	SetField(&testing, "", "GainRef_FlipRotate", fixvalues["Gainref_FlipRotate"], "", false)
+	SetField(&testing, "", "gainref_flip_rotate", fixvalues["Gainref_FlipRotate"], "", false)
 	SetField(&testing, "", "CS", fixvalues["CS"], "mm", false)
 	//
-	mh["Instrument"] = testing
-	mh["Acquisition"] = acq_testing
+	mh["instrument"] = testing
+	mh["acquisition"] = acq_testing
 	// Filter out fields that are nil
 	wut, err := json.Marshal(mh)
 	if err != nil {
