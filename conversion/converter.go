@@ -205,8 +205,8 @@ func Convert(jsonin []byte, content embed.FS) error {
 	if errun != nil {
 		fmt.Println("config was not set and could not be obtained - make sure the config is set at ~/.config/LS_reader.conf")
 	}
-	SetField(&testing, "", "gainref_flip_rotate", fixvalues["Gainref_FlipRotate"], "", false)
-	SetField(&testing, "", "CS", fixvalues["CS"], "mm", false)
+	SetField(&acq_testing, "", "GainrefFlipRotate", fixvalues["Gainref_FlipRotate"], "", false)
+	SetField(&testing, "", "Cs", fixvalues["CS"], "mm", false)
 	//
 	mh["instrument"] = testing
 	mh["acquisition"] = acq_testing

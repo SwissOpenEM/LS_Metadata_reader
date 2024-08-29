@@ -1,3 +1,4 @@
 
 dist/
 conversion/conversions_*
+*.json

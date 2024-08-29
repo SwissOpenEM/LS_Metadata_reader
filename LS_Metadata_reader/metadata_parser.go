@@ -302,10 +302,18 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 		"2006-Jan-02  15:04:05",
 		time.RFC3339Nano,
 	}
+	dose_avg := 0.0
 	for item := range listofcontents {
 		for key := range listofcontents[item] {
 			value, exists := overallmap[key]
 			valuenew := (listofcontents[item])[key]
+			// get dose average
+			if strings.Contains(key, "DoseOnCamera") || strings.Contains(key, "ExposureDose") {
+				convtest, err := strconv.ParseFloat(strings.TrimSpace(valuenew), 64)
+				if err == nil {
+					dose_avg += convtest
+				}
+			}
 			if !exists {
 				overallmap[key] = valuenew
 			} else if value == valuenew {
@@ -385,6 +393,7 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 		}
 	}
 	overallmap["NumberOfMovies"] = strconv.Itoa(len(listofcontents))
+	overallmap["DoseAverage"] = strconv.FormatFloat(dose_avg/float64(len(listofcontents)), 'f', 16, 64)
 	return overallmap
 }
 
