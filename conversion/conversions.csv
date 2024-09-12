@@ -5,7 +5,7 @@ instrument,illumination,,,MicroscopeImage.microscopeData.optics.IlluminationMode
 instrument,imaging,,,MicroscopeImage.microscopeData.optics.ColumnOperatingTemSubMode,ImagingMode,,,_em_imaging.mode,String,,,,,,,
 instrument,electron_source,,,MicroscopeImage.microscopeData.gun.Sourcetype,Source,SourceType,,_em_imaging.electron_source ,String,https://purls.helmholtz-metadaten.de/emg/EMG_00000045,,,,,,
 instrument,acceleration_voltage,,,MicroscopeImage.microscopeData.gun.AccelerationVoltage,Voltage,AccelerationVoltage,,_em_imaging.accelerating_voltage ,Int,https://purls.helmholtz-metadaten.de/emg/EMG_00000004,,,kV,0.001,,kilovolts
-instrument,c2_aperture,,,Aperture[C2].Name,,,,_em_imaging.c2_aperture_diameter,Int,,,,µm,,,micrometres
+instrument,c2_aperture,,,Aperture[C2].Name,,,,_em_imaging.c2_aperture_diameter,Int,,,,um,,,micrometres
 instrument,cs,,,,CS,,,_em_imaging.nominal_cs ,Float64,,,,mm,,,millimetres
 ,,,,,,,,,,,,,,,,
 acquisition,nominal_defocus,minimal,,AppliedDefocus_min,TargetDefocus_min,,,_em_imaging.nominal_defocus_min,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,TargetDefocus,nm,1000000000,1000,nanometers
@@ -24,7 +24,7 @@ acquisition,alignment_procedure,,,,,,,_em_imaging.alignment_procedure ,String,,,
 acquisition,microscope_software,,,MicroscopeImage.microscopeData.core.ApplicationSoftware,Software,ControlSoftwareVersion,,_em_software.category ['IMAGE ACQUISITION'],String,,,,,,,
 acquisition,detector,,,DetectorCommercialName,CameraUsed,DetectorName,"Acquisition_instrument.TEM.Detector, camera.detector_size",_em_image_recording.film_or_detector_model,String,,EMD: Potential overlap between Detector and DetectorMode. Multiple Detectors / PRZ: Acquisition_instrument.TEM.Detector does not always exist. If it doesnt then the only information about the Detector is the size.,,,,,
 acquisition,detector_mode,,,,,,,_em_image_recording.detector_mode  ,String,,EMD: Potential overlap between Detector and DetectorMode. Multiple Detectors,,,,,
-acquisition,dose_per_movie,,,DoseAverage,DoseAverage,,,_em_image_recording.avg_electron_dose_per_image,Float64,,,,e/Å²,,,electrons_angstrom_squared
+acquisition,dose_per_movie,,,DoseAverage,DoseAverage,,,_em_image_recording.avg_electron_dose_per_image,Float64,,,,1/Å²,,,electrons_angstrom_squared
 ,,,,,,,,,,,,,,,,
 acquisition,energy_filter,used,,MicroscopeImage.microscopeData.optics.EnergyFilter.EnergySelectionSlitInserted,EnergyFilterUsed,,,,Bool,,,,,,,
 acquisition,energy_filter,model,,,,,,_em_imaging_optics.energyfilter_name,String,,,,,,,
@@ -63,10 +63,10 @@ acquisition,beamshift,y_min,,MicroscopeImage.microscopeData.optics.BeamShift._y_
 acquisition,beamtilt,x_max,,MicroscopeImage.microscopeData.optics.BeamTilt._x,TBI,,,,Float64,,double check what unit this is,,mrad,,,milliradians
 acquisition,beamtilt,y_max,,MicroscopeImage.microscopeData.optics.BeamTilt._y,TBI,,,,Float64,,double check what unit this is,,mrad,,,milliradians
 ,,,,,,,,,,,,,,,,
-acquisition,imageshift,x_max,,MicroscopeImage.microscopeData.optics.ImageShift._x_max,ImageShift_x_max_max,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._x,µm,,,micrometres
-acquisition,imageshift,x_min,,MicroscopeImage.microscopeData.optics.ImageShift._x_min,ImageShift_x_min_min,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._x,µm,,,micrometres
-acquisition,imageshift,y_max,,MicroscopeImage.microscopeData.optics.ImageShift._y_max,ImageShift_y_max_max,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._y,µm,,,micrometres
-acquisition,imageshift,y_min,,MicroscopeImage.microscopeData.optics.ImageShift._y_min,ImageShift_y_min_min,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._y,µm,,,micrometres
+acquisition,imageshift,x_max,,MicroscopeImage.microscopeData.optics.ImageShift._x_max,ImageShift_x_max_max,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._x,um,,,micrometres
+acquisition,imageshift,x_min,,MicroscopeImage.microscopeData.optics.ImageShift._x_min,ImageShift_x_min_min,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._x,um,,,micrometres
+acquisition,imageshift,y_max,,MicroscopeImage.microscopeData.optics.ImageShift._y_max,ImageShift_y_max_max,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._y,um,,,micrometres
+acquisition,imageshift,y_min,,MicroscopeImage.microscopeData.optics.ImageShift._y_min,ImageShift_y_min_min,,,,Float64,,double check what unit this is,MicroscopeImage.microscopeData.optics.ImageShift._y,um,,,micrometres
 acquisition,tilt_axis_angle,,,,TiltAxisAngle,,,,Float64,,,,°,,,degrees
 acquisition,beamtiltgroups,,,,,,,,Int,,,,,,,
 acquisition,gainref_flip_rotate,,,,,,,,String,,,,,,,
