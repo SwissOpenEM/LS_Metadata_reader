@@ -8,11 +8,11 @@ instrument,acceleration_voltage,,,MicroscopeImage.microscopeData.gun.Acceleratio
 instrument,c2_aperture,,,Aperture[C2].Name,,,,_em_imaging.c2_aperture_diameter,Int,,,,um,,,micrometres
 instrument,cs,,,,CS,,,_em_imaging.nominal_cs ,Float64,,,,mm,,,millimetres
 ,,,,,,,,,,,,,,,,
-acquisition,nominal_defocus,minimal,,AppliedDefocus_min,TargetDefocus_min,,,_em_imaging.nominal_defocus_min,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,TargetDefocus,nm,1000000000,1000,nanometers
-acquisition,nominal_defocus,maximal,,AppliedDefocus_max,TargetDefocus_max,,,_em_imaging.nominal_defocus_max,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,,nm,1000000000,1000,nanometers
+acquisition,nominal_defocus,minimal,,AppliedDefocus_min,TargetDefocus_min,,,_em_imaging.nominal_defocus_max,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,TargetDefocus,nm,1000000000,1000,nanometers
+acquisition,nominal_defocus,maximal,,AppliedDefocus_max,TargetDefocus_max,,,_em_imaging.nominal_defocus_min,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,,nm,1000000000,1000,nanometers
 ,,,,,,,,,,,,,,,,
-acquisition,calibrated_defocus,minimal,,MicroscopeImage.microscopeData.optics.Defocus_min,Defocus_min,,,_em_imaging.calibrated_defocus_min,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,Defocus_min_min,nm,1000000000,1000,nanometers
-acquisition,calibrated_defocus,maximal,,MicroscopeImage.microscopeData.optics.Defocus_max,Defocus_max,,,_em_imaging.calibrated_defocus_max,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,Defocus_max_max,nm,1000000000,1000,nanometers
+acquisition,calibrated_defocus,minimal,,MicroscopeImage.microscopeData.optics.Defocus_min,Defocus_min,,,_em_imaging.calibrated_defocus_max,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,Defocus_min_min,nm,1000000000,1000,nanometers
+acquisition,calibrated_defocus,maximal,,MicroscopeImage.microscopeData.optics.Defocus_max,Defocus_max,,,_em_imaging.calibrated_defocus_min,Float64,,EMD: Only one Defocus value. No min and max. No calibrated value.,Defocus_max_max,nm,1000000000,1000,nanometers
 acquisition,nominal_magnification,,,MicroscopeImage.microscopeData.optics.TemMagnification.NominalMagnification,Magnification,,,_em_imaging.nominal_magnification ,Int,,,,,,,
 acquisition,calibrated_magnification,,,,,,,_em_imaging.calibrated_magnification,Int,,,,,,,
 acquisition,holder,,,,,,,_em_imaging.specimen_holder_model,String,,,,,,,
@@ -21,7 +21,7 @@ acquisition,holder_cryogen,,,,,,,,String,,,,,,,
 acquisition,temperature,minimal,,,,,,_em_imaging.recording_temperature_minimum,Float64,,EMD: One Temperature value per Detector. No min and max.,,K,,,kelvins
 acquisition,temperature,maximal,,,,,,_em_imaging.recording_temperature_maximum,Float64,,EMD: One Temperature value per Detector. No min and max.,,K,,,kelvins
 acquisition,alignment_procedure,,,,,,,_em_imaging.alignment_procedure ,String,,,,,,,
-acquisition,microscope_software,,,MicroscopeImage.microscopeData.core.ApplicationSoftware,Software,ControlSoftwareVersion,,_em_software.category ['IMAGE ACQUISITION'],String,,,,,,,
+acquisition,microscope_software,,,MicroscopeImage.microscopeData.core.ApplicationSoftware,Software,ControlSoftwareVersion,,_em_software.name,String,,,,,,,
 acquisition,detector,,,DetectorCommercialName,CameraUsed,DetectorName,"Acquisition_instrument.TEM.Detector, camera.detector_size",_em_image_recording.film_or_detector_model,String,,EMD: Potential overlap between Detector and DetectorMode. Multiple Detectors / PRZ: Acquisition_instrument.TEM.Detector does not always exist. If it doesnt then the only information about the Detector is the size.,,,,,
 acquisition,detector_mode,,,,,,,_em_image_recording.detector_mode  ,String,,EMD: Potential overlap between Detector and DetectorMode. Multiple Detectors,,,,,
 acquisition,dose_per_movie,,,DoseAverage,DoseAverage,,,_em_image_recording.avg_electron_dose_per_image,Float64,,,,1/Å²,,,electrons_angstrom_squared
@@ -75,9 +75,9 @@ acquisition,gainref_flip_rotate,,,,,,,,String,,,,,,,
 grants,project_id,,,,,,,_pdbx_audit_support.grant_number ,String,https://schema.org/fundedItem,,,,,,
 grants,funder,,,,,,,_pdbx_audit_support.funding_organization,String,https://schema.org/funder,,,,,,
 grants,name,,,,,,,,String,,,,,,,
-,,,,,,,,,,,,,,,,
-authors,name,,,,,,,_pdbx_contact_author.name_first,String,https://schema.org/familyName,,,,,,
-authors,first_name,,,,,,,_pdbx_contact_author.name_last,String,https://schema.org/name,,,,,,
+grants,country,,,,,,,_pdbx_audit_support.country,String,,,,,,,
+authors,first_name,,,,,,,_pdbx_contact_author.name_first,String,https://schema.org/familyName,,,,,,
+authors,name,,,,,,,_pdbx_contact_author.name_last,String,https://schema.org/name,,,,,,
 authors,email,,,,,,,_pdbx_contact_author.email,String,https://schema.org/email,,,,,,
 authors,work_phone,,,,,,,_pdbx_contact_author.phone,String,http://semanticscience.org/resource/SIO_001324,,,,,,
 authors,orcid,,,,,,,_pdbx_contact_author.identifier_ORCID,String,http://purl.obolibrary.org/obo/IAO_0000708,,,,,,
