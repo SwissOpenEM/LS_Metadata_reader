@@ -46,14 +46,14 @@ acquisition,binning_camera,,,MicroscopeImage.microscopeData.acquisition.camera.B
 acquisition,pixel_size,,,MicroscopeImage.SpatialScale.pixelSize.x.numericValue,PixelSpacing,PixelSize,camera.pixel_size,,Float64,,"while there are map related pixelsizes  - none of them refer to the original images, all to the reconstruction - see i.e. _em_3d_reconstruction.nominal_pixel_size",,Å,10000000000,,angstroms
 ,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
-acquisition,specialist_optics,phaseplate,used,PhasePlateUsed,,,,_em_imaging_optics.phase_plate,Bool,,,,,,,
-acquisition,specialist_optics,phaseplate,type,,,,,,String,,,,,,,
+acquisition,specialist_optics,phaseplate,used,PhasePlateUsed,,,,,Bool,,,,,,,
+acquisition,specialist_optics,phaseplate,instrument_type,,,,,_em_imaging_optics.phase_plate,String,,,,,,,
 ,,,,,,,,,,,,,,,,
-acquisition,specialist_optics,spherical_aberration_corrector,used,,,,,_em_imaging_optics.sph_aberration_corrector,Bool,,,,,,,
-acquisition,specialist_optics,spherical_aberration_corrector,type,,,,,,String,,,,,,,
+acquisition,specialist_optics,spherical_aberration_corrector,used,,,,,,Bool,,,,,,,
+acquisition,specialist_optics,spherical_aberration_corrector,instrument_type,,,,,_em_imaging_optics.sph_aberration_corrector,String,,,,,,,
 ,,,,,,,,,,,,,,,,
-acquisition,specialist_optics,chromatic_aberration_corrector,used,,,,,_em_imaging_optics.chr_aberration_corrector,Bool,,,,,,,
-acquisition,specialist_optics,chromatic_aberration_corrector,type,,,,,,String,,,,,,,
+acquisition,specialist_optics,chromatic_aberration_corrector,used,,,,,,Bool,,,,,,,
+acquisition,specialist_optics,chromatic_aberration_corrector,instrument_type,,,,,_em_imaging_optics.chr_aberration_corrector,String,,,,,,,
 ,,,,,,,,,,,,,,,,
 acquisition,beamshift,x_max,,MicroscopeImage.microscopeData.optics.BeamShift._x_max,Beamshift_x_max_max,,,,Float64,,double check what unit this is,,mrad,,,milliradians
 acquisition,beamshift,x_min,,MicroscopeImage.microscopeData.optics.BeamShift._x_min,Beamshift_x_min_min,,,,Float64,,double check what unit this is,,mrad,,,milliradians
