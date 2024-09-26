@@ -40,7 +40,7 @@ func Setconfig(path string, usr *user.User) {
 		fmt.Println("Error reading input:", err)
 		return
 	}
-	fmt.Println("And what is the rotation or flipping that needs to be done when importing the gain reference to cryosparc?")
+	fmt.Println("And what is the rotation or flipping that needs to be done when importing the gain reference to e.g cryosparc?")
 	reader2 := bufio.NewReader(os.Stdin)
 	input2, err := reader2.ReadString('\n')
 	if err != nil {
@@ -65,4 +65,45 @@ func Setconfig(path string, usr *user.User) {
 		fmt.Println("Error generating config:", err)
 	}
 	fmt.Println("Generated config at", path)
+}
+
+func Changeconfig() {
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	configFilePath := filepath.Join(usr.HomeDir, ".config", "LS_reader.conf")
+	_, err1 := os.Stat(configFilePath)
+	if err1 != nil {
+		Setconfig(configFilePath, usr)
+		os.Exit(0)
+	}
+
+	fmt.Println("What is your instruments spherical aberration (CS)?")
+	reader := bufio.NewReader(os.Stdin)
+	input1, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		return
+	}
+	fmt.Println("And what is the rotation or flipping that needs to be done when importing the gain reference to e.g cryosparc?")
+	reader2 := bufio.NewReader(os.Stdin)
+	input2, err := reader2.ReadString('\n')
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		return
+	}
+	configmap := make(map[string]string)
+	configmap["CS"] = strings.TrimSpace(input1)
+	configmap["Gainref_FlipRotate"] = strings.TrimSpace(input2)
+	config, err := json.MarshalIndent(configmap, "", "    ")
+	if err != nil {
+		fmt.Println("Error generating config:", err)
+		return
+	}
+	err = os.WriteFile(configFilePath, config, 0644)
+	if err != nil {
+		fmt.Println("Error generating config:", err)
+	}
+	fmt.Println("Generated config at", configFilePath)
 }
