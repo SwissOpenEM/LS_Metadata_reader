@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 )
 
@@ -25,10 +26,29 @@ func main() {
 	fileContent = strings.ReplaceAll(fileContent, "float64", "basetypes.Float64")
 	fileContent = strings.ReplaceAll(fileContent, "bool", "basetypes.Bool")
 	fileContent = strings.ReplaceAll(fileContent, "string", "basetypes.String")
-	fileContent = strings.ReplaceAll(fileContent, "oscem-schemas", "oscem")
 	fileContent = strings.ReplaceAll(fileContent, "time.Date", "basetypes.String")
+	fileContent = strings.ReplaceAll(fileContent, "QuantityValue", "basetypes.Float64")
+	fileContent = strings.ReplaceAll(fileContent, "Any", "basetypes.String")
+	fileContent = strings.ReplaceAll(fileContent, "type basetypes.Float64", "type QuantityValue")
+	fileContent = strings.ReplaceAll(fileContent, "type basetypes.String", "type Any")
 
-	err = ioutil.WriteFile(filePath, []byte(fileContent), 0644)
+	// making sure any imported OSCEM schema works - provided it is compatible with the conversions table.
+	pattern := "oscem-.*"
+	replacement := "oscem"
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		fmt.Println("Error compiling regex:", err)
+		return
+	}
+	lines := strings.Split(fileContent, "\n")
+	for i, line := range lines {
+		if re.MatchString(line) {
+			lines[i] = re.ReplaceAllString(line, replacement)
+		}
+	}
+	output := strings.Join(lines, "\n")
+
+	err = ioutil.WriteFile(filePath, []byte(output), 0644)
 	if err != nil {
 		fmt.Println("Error writing the file:", err)
 		return

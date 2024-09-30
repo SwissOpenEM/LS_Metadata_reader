@@ -2,3 +2,4 @@
 dist/
 conversion/conversions_*
 *.json
+.vscode/

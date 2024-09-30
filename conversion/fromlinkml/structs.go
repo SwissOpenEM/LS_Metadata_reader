@@ -7,6 +7,14 @@ import "LS_reader/conversion/basetypes"
  */
 type TiltAngle struct {
 	/*
+	 * parent types
+	 */
+	Series
+	/*
+	 * Increment between elements of a series
+	 */
+	Increment basetypes.Float64 `json:"increment"`
+	/*
 	 * Minimal value of a given dataset property
 	 */
 	Minimal basetypes.Float64 `json:"minimal"`
@@ -14,7 +22,100 @@ type TiltAngle struct {
 	 * Maximal value of a given dataset property
 	 */
 	Maximal basetypes.Float64 `json:"maximal"`
+}
+
+/*
+ * basetypes.String type, used as the base for type-narrowing.
+
+See https://linkml.io/linkml/schemas/advanced.html
+ */
+type Any struct {
+}
+
+/*
+ * A range constructed from min and max
+ */
+type Range struct {
+	/*
+	 * Minimal value of a given dataset property
+	 */
+	Minimal basetypes.Float64 `json:"minimal"`
+	/*
+	 * Maximal value of a given dataset property
+	 */
+	Maximal basetypes.Float64 `json:"maximal"`
+}
+
+/*
+ * A series of numbers constructed from min, max, and increment
+ */
+type Series struct {
+	/*
+	 * parent types
+	 */
+	Range
+	/*
+	 * Increment between elements of a series
+	 */
 	Increment basetypes.Float64 `json:"increment"`
+	/*
+	 * Minimal value of a given dataset property
+	 */
+	Minimal basetypes.Float64 `json:"minimal"`
+	/*
+	 * Maximal value of a given dataset property
+	 */
+	Maximal basetypes.Float64 `json:"maximal"`
+}
+
+/*
+ * size of a 2D image (in basetypes.Integer units)
+ */
+type ImageSize struct {
+	/*
+	 * The height of a given item - unit depends on item
+	 */
+	Height basetypes.Int `json:"height"`
+	/*
+	 * The width of a given item - unit depends on item
+	 */
+	Width basetypes.Int `json:"width"`
+}
+
+/*
+ * an axis-aligned 2D bounding box (float units)
+ */
+type BoundingBox2D struct {
+	/*
+	 * minimum x
+	 */
+	XMin basetypes.Float64 `json:"x_min"`
+	/*
+	 * maximum x
+	 */
+	XMax basetypes.Float64 `json:"x_max"`
+	/*
+	 * minimum y
+	 */
+	YMin basetypes.Float64 `json:"y_min"`
+	/*
+	 * maximum y
+	 */
+	YMax basetypes.Float64 `json:"y_max"`
+}
+
+/*
+ * if a value has a unit, it should be given as a unit value pair.
+ */
+type QuantityValue struct {
+	/*
+	 * the unit of a given value
+	 */
+	Unit basetypes.String `json:"unit"`
+	/*
+	 * the value of a field with a unit
+	 */
+	Value basetypes.Float64 `json:"value"`
 }
 
 
@@ -22,11 +123,11 @@ type Acquisition struct {
 	/*
 	 * Target defocus set, min and max values in µm.
 	 */
-	NominalDefocus NominalDefocus `json:"nominal_defocus"`
+	NominalDefocus Range `json:"nominal_defocus"`
 	/*
 	 * Machine estimated defocus, min and max values in µm. Has a tendency to be off.
 	 */
-	CalibratedDefocus CalibratedDefocus `json:"calibrated_defocus"`
+	CalibratedDefocus Range `json:"calibrated_defocus"`
 	/*
 	 * Magnification level as indicated by the instrument, no unit
 	 */
@@ -44,9 +145,9 @@ type Acquisition struct {
 	 */
 	HolderCryogen basetypes.String `json:"holder_cryogen"`
 	/*
-	 * Environmental temperature just before vitrification, in K
+	 * Temperature during data collection, in K with min and max values.
 	 */
-	Temperature basetypes.Float64 `json:"temperature"`
+	Temperature Range `json:"temperature"`
 	/*
 	 * Software used for instrument control,
 	 */
@@ -74,7 +175,7 @@ type Acquisition struct {
 	/*
 	 * Time and date of the data acquisition
 	 */
-	Datetime basetypes.String `json:"datetime"`
+	DateTime basetypes.String `json:"date_time"`
 	/*
 	 * Time of data acquisition per movie/tilt - in s
 	 */
@@ -104,21 +205,21 @@ type Acquisition struct {
 	 */
 	PixelSize basetypes.Float64 `json:"pixel_size"`
 	/*
-	 * Any type of special optics, such as a phaseplate
+	 * basetypes.String type of special optics, such as a phaseplate
 	 */
 	SpecialistOptics SpecialistOptics `json:"specialist_optics"`
 	/*
 	 * Movement of the beam above the sample for data collection purposes that does not require movement of the stage. Given in mrad.
 	 */
-	Beamshift Beamshift `json:"beamshift"`
+	Beamshift BoundingBox2D `json:"beamshift"`
 	/*
 	 * Another way to move the beam above the sample for data collection purposes that does not require movement of the stage. Given in mrad.
 	 */
-	Beamtilt Beamtilt `json:"beamtilt"`
+	Beamtilt BoundingBox2D `json:"beamtilt"`
 	/*
 	 * Movement of the Beam below the image in order to shift the image on the detector. Given in µm.
 	 */
-	Imageshift Imageshift `json:"imageshift"`
+	Imageshift BoundingBox2D `json:"imageshift"`
 	/*
 	 * Number of Beamtilt groups present in this dataset - for optimized processing split dataset basetypes.Into groups of same tilt angle. Despite its name Beamshift is often used to achive this result.
 	 */
@@ -130,63 +231,15 @@ type Acquisition struct {
 }
 
 
-type NominalDefocus struct {
-	/*
-	 * Minimal value of a given dataset property
-	 */
-	Minimal basetypes.Float64 `json:"minimal"`
-	/*
-	 * Maximal value of a given dataset property
-	 */
-	Maximal basetypes.Float64 `json:"maximal"`
-}
-
-
-type CalibratedDefocus struct {
-	/*
-	 * Minimal value of a given dataset property
-	 */
-	Minimal basetypes.Float64 `json:"minimal"`
-	/*
-	 * Maximal value of a given dataset property
-	 */
-	Maximal basetypes.Float64 `json:"maximal"`
-}
-
-
-type TemperatureRange struct {
-	/*
-	 * Minimal value of a given dataset property
-	 */
-	Minimal basetypes.Float64 `json:"minimal"`
-	/*
-	 * Maximal value of a given dataset property
-	 */
-	Maximal basetypes.Float64 `json:"maximal"`
-}
-
-
 type EnergyFilter struct {
 	/*
 	 * whether a specific instrument was used during data acquisition
 	 */
 	Used basetypes.Bool `json:"used"`
 	/*
-	 * Make and model of a specialized device
+	 * Make and model of a specilized device
 	 */
 	Model basetypes.String `json:"model"`
-	/*
-	 * The width of a given item - unit depends on item
-	 */
-	Width basetypes.Int `json:"width"`
-}
-
-
-type ImageSize struct {
-	/*
-	 * The height of a given item - unit depends on item
-	 */
-	Height basetypes.Int `json:"height"`
 	/*
 	 * The width of a given item - unit depends on item
 	 */
@@ -216,9 +269,9 @@ type Phaseplate struct {
 	 */
 	Used basetypes.Bool `json:"used"`
 	/*
-	 * Make and model of a specialized device
+	 * Type of phaseplate
 	 */
-	Model basetypes.String `json:"model"`
+	InstrumentType basetypes.String `json:"instrument_type"`
 }
 
 
@@ -228,9 +281,9 @@ type SphericalAberrationCorrector struct {
 	 */
 	Used basetypes.Bool `json:"used"`
 	/*
-	 * Make and model of a specialized device
+	 * Details of a given specialist instrument
 	 */
-	Model basetypes.String `json:"model"`
+	InstrumentType basetypes.String `json:"instrument_type"`
 }
 
 
@@ -240,33 +293,9 @@ type ChromaticAberrationCorrector struct {
 	 */
 	Used basetypes.Bool `json:"used"`
 	/*
-	 * Make and model of a specialized device
+	 * Details of a given specialist instrument
 	 */
-	Model basetypes.String `json:"model"`
-}
-
-
-type Beamshift struct {
-	XMin basetypes.Float64 `json:"x_min"`
-	XMax basetypes.Float64 `json:"x_max"`
-	YMin basetypes.Float64 `json:"y_min"`
-	YMax basetypes.Float64 `json:"y_max"`
-}
-
-
-type Beamtilt struct {
-	XMin basetypes.Float64 `json:"x_min"`
-	XMax basetypes.Float64 `json:"x_max"`
-	YMin basetypes.Float64 `json:"y_min"`
-	YMax basetypes.Float64 `json:"y_max"`
-}
-
-
-type Imageshift struct {
-	XMin basetypes.Float64 `json:"x_min"`
-	XMax basetypes.Float64 `json:"x_max"`
-	YMin basetypes.Float64 `json:"y_min"`
-	YMax basetypes.Float64 `json:"y_max"`
+	InstrumentType basetypes.String `json:"instrument_type"`
 }
 
 /*
@@ -292,11 +321,11 @@ type Instrument struct {
 	/*
 	 * Voltage used for the electron acceleration, in kV
 	 */
-	AccelerationVoltage basetypes.Int `json:"acceleration_voltage"`
+	AccelerationVoltage basetypes.Float64 `json:"acceleration_voltage"`
 	/*
 	 * C2 aperture size used in data acquisition, in µm
 	 */
-	C2Aperture basetypes.Int `json:"c2_aperture"`
+	C2Aperture basetypes.Float64 `json:"c2_aperture"`
 	/*
 	 * Spherical aberration of the instrument, in mm
 	 */
@@ -308,9 +337,9 @@ type Instrument struct {
  */
 type OverallMolecule struct {
 	/*
-	 * Description of the overall supramolecular type, i.e., a complex
+	 * Description of the overall molecular type, i.e., a complex
 	 */
-	Type basetypes.String `json:"type"`
+	MolecularType basetypes.String `json:"molecular_type"`
 	/*
 	 * Name of the full sample
 	 */
@@ -323,6 +352,10 @@ type OverallMolecule struct {
 	 * Molecular weight in Da
 	 */
 	MolecularWeight basetypes.Float64 `json:"molecular_weight"`
+	/*
+	 * What type of higher order structure your sample forms - if any.
+	 */
+	Assembly basetypes.String `json:"assembly"`
 }
 
 /*
@@ -334,9 +367,9 @@ type Molecule struct {
 	 */
 	NameMol basetypes.String `json:"name_mol"`
 	/*
-	 * Description of the overall supramolecular type, i.e., a complex
+	 * Description of the overall molecular type, i.e., a complex
 	 */
-	Type basetypes.String `json:"type"`
+	MolecularType basetypes.String `json:"molecular_type"`
 	/*
 	 * Class of the molecule
 	 */
@@ -376,9 +409,9 @@ type Ligand struct {
 	 */
 	Present basetypes.Bool `json:"present"`
 	/*
-	 * Provide a valid SMILE basetypes.String of your ligand
+	 * Provide a valid SMILES basetypes.String of your ligand
 	 */
-	Smile basetypes.String `json:"smile"`
+	Smiles basetypes.String `json:"smiles"`
 	/*
 	 * Link to a reference of your ligand, i.e., CCD, PubChem, etc.
 	 */
@@ -394,7 +427,7 @@ type Specimen struct {
 	 */
 	Buffer basetypes.String `json:"buffer"`
 	/*
-	 * Concentration of the (supra)molecule in the sample, in M
+	 * Concentration of the (supra)molecule in the sample, in mg/ml
 	 */
 	Concentration basetypes.Float64 `json:"concentration"`
 	/*
@@ -538,21 +571,25 @@ type Author struct {
 	 */
 	Person
 	/*
-	 * institution
-	 */
-	Institution []Institution `json:"institution"`
-	/*
 	 * ORCID of the author, a type of unique identifier
 	 */
 	Orcid basetypes.String `json:"orcid"`
 	/*
-	 * Country of the author's institution
+	 * Country of the institution
 	 */
 	Country basetypes.String `json:"country"`
 	/*
 	 * Role of the author, i.e., principal investigator
 	 */
 	Role basetypes.String `json:"role"`
+	/*
+	 * Name of the organization
+	 */
+	NameOrg basetypes.String `json:"name_org"`
+	/*
+	 * Type of organization, academic, commercial, governmental, etc.
+	 */
+	TypeOrg basetypes.String `json:"type_org"`
 	/*
 	 * name
 	 */
@@ -573,20 +610,6 @@ type Author struct {
 	 * work phone
 	 */
 	WorkPhone basetypes.String `json:"work_phone"`
-}
-
-/*
- * A class representing an organization
- */
-type Institution struct {
-	/*
-	 * Name of the organization
-	 */
-	NameOrg basetypes.String `json:"name_org"`
-	/*
-	 * Type of organization, academic, commercial, governmental, etc.
-	 */
-	TypeOrg basetypes.String `json:"type_org"`
 }
 
 /*
@@ -612,32 +635,28 @@ type Grant struct {
 	/*
 	 * budget
 	 */
-	Budget QuantityValue `json:"budget"`
+	Budget basetypes.Float64 `json:"budget"`
 	/*
 	 * project id
 	 */
 	ProjectId basetypes.String `json:"project_id"`
-}
-
-/*
- * Value together with unit
- */
-type QuantityValue struct {
 	/*
-	 * Value
+	 * Country of the institution
 	 */
-	HasValue basetypes.Float64 `json:"has_value"`
-	/*
-	 * Unit
-	 */
-	HasUnit basetypes.String `json:"has_unit"`
+	Country basetypes.String `json:"country"`
 }
 
 /*
  * OSC-EM Metadata for a dataset
  */
 type EMDataset struct {
+	/*
+	 * Describe the data acquisition parameters
+	 */
 	Acquisition AcquisitionTomo `json:"acquisition"`
+	/*
+	 * Describe the instrument used to acquire the data
+	 */
 	Instrument Instrument `json:"instrument"`
 	/*
 	 * Sample information
@@ -670,11 +689,11 @@ type AcquisitionTomo struct {
 	/*
 	 * Target defocus set, min and max values in µm.
 	 */
-	NominalDefocus NominalDefocus `json:"nominal_defocus"`
+	NominalDefocus Range `json:"nominal_defocus"`
 	/*
 	 * Machine estimated defocus, min and max values in µm. Has a tendency to be off.
 	 */
-	CalibratedDefocus CalibratedDefocus `json:"calibrated_defocus"`
+	CalibratedDefocus Range `json:"calibrated_defocus"`
 	/*
 	 * Magnification level as indicated by the instrument, no unit
 	 */
@@ -692,9 +711,9 @@ type AcquisitionTomo struct {
 	 */
 	HolderCryogen basetypes.String `json:"holder_cryogen"`
 	/*
-	 * Environmental temperature just before vitrification, in K
+	 * Temperature during data collection, in K with min and max values.
 	 */
-	Temperature basetypes.Float64 `json:"temperature"`
+	Temperature Range `json:"temperature"`
 	/*
 	 * Software used for instrument control,
 	 */
@@ -722,7 +741,7 @@ type AcquisitionTomo struct {
 	/*
 	 * Time and date of the data acquisition
 	 */
-	Datetime basetypes.String `json:"datetime"`
+	DateTime basetypes.String `json:"date_time"`
 	/*
 	 * Time of data acquisition per movie/tilt - in s
 	 */
@@ -752,21 +771,21 @@ type AcquisitionTomo struct {
 	 */
 	PixelSize basetypes.Float64 `json:"pixel_size"`
 	/*
-	 * Any type of special optics, such as a phaseplate
+	 * basetypes.String type of special optics, such as a phaseplate
 	 */
 	SpecialistOptics SpecialistOptics `json:"specialist_optics"`
 	/*
 	 * Movement of the beam above the sample for data collection purposes that does not require movement of the stage. Given in mrad.
 	 */
-	Beamshift Beamshift `json:"beamshift"`
+	Beamshift BoundingBox2D `json:"beamshift"`
 	/*
 	 * Another way to move the beam above the sample for data collection purposes that does not require movement of the stage. Given in mrad.
 	 */
-	Beamtilt Beamtilt `json:"beamtilt"`
+	Beamtilt BoundingBox2D `json:"beamtilt"`
 	/*
 	 * Movement of the Beam below the image in order to shift the image on the detector. Given in µm.
 	 */
-	Imageshift Imageshift `json:"imageshift"`
+	Imageshift BoundingBox2D `json:"imageshift"`
 	/*
 	 * Number of Beamtilt groups present in this dataset - for optimized processing split dataset basetypes.Into groups of same tilt angle. Despite its name Beamshift is often used to achive this result.
 	 */
