@@ -47,9 +47,18 @@ func Setconfig(path string, usr *user.User) {
 		fmt.Println("Error reading input:", err)
 		return
 	}
+	fmt.Println("If available what is the path where EPU mirrors your data output and dumps its metadata .csvs (typically this is on the microscope computer). If you dont know/ cant reacht that folder leave this empty.")
+	reader3 := bufio.NewReader(os.Stdin)
+	input3, err := reader3.ReadString('\n')
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		return
+	}
+
 	configmap := make(map[string]string)
 	configmap["CS"] = strings.TrimSpace(input1)
 	configmap["Gainref_FlipRotate"] = strings.TrimSpace(input2)
+	configmap["MPCPATH"] = strings.TrimSpace(input3)
 	config, err := json.MarshalIndent(configmap, "", "    ")
 	if err != nil {
 		fmt.Println("Error generating config:", err)
@@ -93,9 +102,17 @@ func Changeconfig() {
 		fmt.Println("Error reading input:", err)
 		return
 	}
+	fmt.Println("If available what is the path where EPU mirrors your data output and dumps its metadata .xmls (typically this is on the microscope computer). If you dont know/ cant reach that folder leave this empty. For optimal usage of this tool this is however required.")
+	reader3 := bufio.NewReader(os.Stdin)
+	input3, err := reader3.ReadString('\n')
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		return
+	}
 	configmap := make(map[string]string)
 	configmap["CS"] = strings.TrimSpace(input1)
 	configmap["Gainref_FlipRotate"] = strings.TrimSpace(input2)
+	configmap["MPCPATH"] = strings.TrimSpace(input3)
 	config, err := json.MarshalIndent(configmap, "", "    ")
 	if err != nil {
 		fmt.Println("Error generating config:", err)

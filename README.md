@@ -2,7 +2,7 @@
 simple parser for the two common life-science EM metadata output formats, written in go
 
 ## Requirements
-Benefits from setting an environmental variable "MPCPATH" to define the path of data acquistisions mirrored on the microscope PC in EPU. Will work regardless if pointed to the xmls/mdocs otherwise.
+Benefits from setting the "MPCPATH" variable in the .config file (using LS_reader_version --c) to define the path of data acquistisions mirrored on the microscope PC in EPU. Will work regardless if pointed to the xmls/mdocs otherwise.
 
 ## Usage
 Chose the appropriate binary from the [Releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases), then:
@@ -13,7 +13,7 @@ Runs on a directory containing raw files and their instrument written additional
 
 ## SerialEM
 SerialEM properties examples are to be added to the existing properties files of your SerialEM installation (update values to reflect your instrument parameters). The two scripts are to be run after each image collection (the lowest tick mark on the SerialEM automization script selection) with the respective name indicating when to use which of the two. Otherwise SerialEM ouput will lack a few required fields for the schema. 
-!!! Requires SerialEM 4.2.0 or newer !!!
+**!!! Requires SerialEM 4.2.0 or newer !!!**
 
 ## Schema-Links 
 Output is compatible to OSCEM schemas https://github.com/osc-em/OSCEM_Schemas/

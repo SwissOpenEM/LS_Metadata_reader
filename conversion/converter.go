@@ -142,7 +142,6 @@ func Convert(jsonin []byte, content embed.FS) error {
 
 	var testing oscem.Instrument
 	var acq_testing oscem.Acquisition
-	mh := make(map[string]interface{})
 
 	for k, v := range jsonData {
 		for _, test := range csvRecords {
@@ -208,6 +207,7 @@ func Convert(jsonin []byte, content embed.FS) error {
 	SetField(&acq_testing, "", "GainrefFlipRotate", fixvalues["Gainref_FlipRotate"], "", false)
 	SetField(&testing, "", "Cs", fixvalues["CS"], "mm", false)
 	//
+	mh := make(map[string]interface{})
 	mh["instrument"] = testing
 	mh["acquisition"] = acq_testing
 	// Filter out fields that are nil

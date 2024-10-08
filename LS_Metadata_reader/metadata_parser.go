@@ -1,6 +1,7 @@
 package LS_Metadata_reader
 
 import (
+	"LS_reader/configuration"
 	"archive/zip"
 	"bufio"
 	"encoding/json"
@@ -515,7 +516,14 @@ func Reader(directory string, zFlag bool, fFlag bool) ([]byte, error) {
 		fmt.Println("Folder search failed - is this the correct directory?", err)
 		return nil, err
 	}
-	parallel := os.Getenv("MPCPATH")
+
+	var getmpc map[string]string
+	errun := json.Unmarshal(configuration.Getconfig(), &getmpc)
+	if errun != nil {
+		fmt.Println("config was not set or could not be obtained - make sure the config is set at ~/.config/LS_reader.conf")
+	}
+
+	parallel := getmpc["MPCPATH"]
 	if parallel != "" {
 		dataFolders, err = findDataFolders(parallel+target, dataFolders)
 		dataFolders = append(dataFolders, directory)
