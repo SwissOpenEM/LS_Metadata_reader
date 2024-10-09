@@ -2,7 +2,7 @@
 simple parser for the two common life-science EM metadata output formats, written in go
 
 ## Requirements
-Benefits from setting the "MPCPATH" variable in the .config file (using LS_reader_version --c) to define the path of data acquistisions mirrored on the microscope PC in EPU. Will work regardless if pointed to the xmls/mdocs otherwise.
+Benefits from setting the "MPCPATH" variable in the .config file (set using LS_reader_version --c) to define the path of data acquistisions mirrored on the microscope PC in EPU. Will work regardless if pointed to the xmls/mdocs otherwise.
 
 ## Usage
 Chose the appropriate binary from the [Releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases), then:

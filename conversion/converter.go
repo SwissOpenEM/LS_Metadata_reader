@@ -8,6 +8,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"strconv"
@@ -15,25 +16,6 @@ import (
 
 	"github.com/stoewer/go-strcase"
 )
-
-type CSVRecord struct {
-	Field1  string
-	Field2  string
-	Field3  string
-	Field4  string
-	Field5  string
-	Field6  string
-	Field7  string
-	Field8  string
-	Field9  string
-	Field10 string
-	Field11 string
-	Field12 string
-	Field13 string
-	Field14 string
-	Field15 string
-	Field16 string
-}
 
 func SetField(obj interface{}, parent, name, value, unit string, prio bool) error {
 	structValue := reflect.ValueOf(obj).Elem()
@@ -145,55 +127,26 @@ func Convert(jsonin []byte, content embed.FS) error {
 
 	for k, v := range jsonData {
 		for _, test := range csvRecords {
-			if test.Field15 != "" && test.Field5 == k {
-				v, err = unitcrunch(v, test.Field15)
+			if test.crunchfromxml != "" && test.fromxml == k {
+				v, err = unitcrunch(v, test.crunchfromxml)
 				if err != nil {
 					fmt.Println("Unit crunching failed: ", err)
 					continue
 				}
 			}
-			if test.Field16 != "" && (test.Field6 == k || test.Field13 == k) {
-				v, err = unitcrunch(v, test.Field16)
+			if test.crunchfrommdoc != "" && (test.frommdoc == k || test.optionals_mdoc == k) {
+				v, err = unitcrunch(v, test.crunchfrommdoc)
 				if err != nil {
 					fmt.Println("Unit crunching failed: ", err)
 					continue
 				}
 			}
 			prio := false
-			if test.Field5 == k || test.Field6 == k || test.Field13 == k {
-				if test.Field6 == k {
+			if test.fromxml == k || test.frommdoc == k || test.optionals_mdoc == k {
+				if test.frommdoc == k {
 					prio = true
 				}
-				if test.Field2 != "" {
-					if test.Field3 != "" {
-						if test.Field4 != "" {
-							err := SetField(&testing, strcase.UpperCamelCase(test.Field3), strcase.UpperCamelCase(test.Field4), v, test.Field14, prio)
-							if err != nil {
-								err2 := SetField(&acq_testing, strcase.UpperCamelCase(test.Field3), strcase.UpperCamelCase(test.Field4), v, test.Field14, prio)
-								if err2 != nil {
-									fmt.Println(err, err2)
-								}
-
-							}
-						} else {
-							err := SetField(&testing, strcase.UpperCamelCase(test.Field2), strcase.UpperCamelCase(test.Field3), v, test.Field14, prio)
-							if err != nil {
-								err2 := SetField(&acq_testing, strcase.UpperCamelCase(test.Field2), strcase.UpperCamelCase(test.Field3), v, test.Field14, prio)
-								if err2 != nil {
-									fmt.Println(err, err2)
-								}
-							}
-						}
-					} else {
-						err := SetField(&testing, "", strcase.UpperCamelCase(test.Field2), v, test.Field14, prio)
-						if err != nil {
-							err2 := SetField(&acq_testing, "", strcase.UpperCamelCase(test.Field2), v, test.Field14, prio)
-							if err2 != nil {
-								fmt.Println(err, err2)
-							}
-						}
-					}
-				}
+				testing, acq_testing = untangle(test, prio, testing, acq_testing, v)
 			}
 		}
 	}
@@ -215,7 +168,7 @@ func Convert(jsonin []byte, content embed.FS) error {
 	if err != nil {
 		return err
 	}
-	// this allows us to obtain nil values for types where Go usually doesnt allow them i.e. int
+	// this allows us to obtain nil values for types where Go usually doesnt allow them e.g. int
 	var kek interface{}
 	err = json.Unmarshal(wut, &kek)
 	if err != nil {
@@ -258,8 +211,17 @@ func CleanMap(data interface{}) interface{} {
 	}
 }
 
-// readCSVFile reads and parses a CSV file into a slice of CSVRecord structs
-func readCSVFile(content embed.FS) ([]CSVRecord, error) {
+type csvextract struct {
+	OSCEM          string
+	fromxml        string
+	frommdoc       string
+	optionals_mdoc string
+	units          string
+	crunchfromxml  string
+	crunchfrommdoc string
+}
+
+func readCSVFile(content embed.FS) ([]csvextract, error) {
 	file, err := content.Open("conversion/conversions.csv")
 	if err != nil {
 		return nil, err
@@ -272,33 +234,40 @@ func readCSVFile(content embed.FS) ([]CSVRecord, error) {
 	if err != nil {
 		return nil, err
 	}
+	desiredColumns := []string{"OSCEM", "fromxml", "frommdoc", "optionals_mdoc", "units", "crunchfromxml", "crunchfrommdoc"}
 
-	var csvRecords []CSVRecord
-	for _, record := range records {
-		if len(record) < 13 {
-			return nil, fmt.Errorf("invalid record: %v", record)
-		}
-		csvRecords = append(csvRecords, CSVRecord{
-			Field1:  record[0],
-			Field2:  record[1],
-			Field3:  record[2],
-			Field4:  record[3],
-			Field5:  record[4],
-			Field6:  record[5],
-			Field7:  record[6],
-			Field8:  record[7],
-			Field9:  record[8],
-			Field10: record[9],
-			Field11: record[10],
-			Field12: record[11],
-			Field13: record[12],
-			Field14: record[13],
-			Field15: record[14],
-			Field16: record[15],
-		})
+	header := records[0]
+	// correct csv bullshit
+	for i, name := range header {
+		header[i] = strings.TrimLeft(name, "\ufeff")
 	}
-	return csvRecords, nil
+	columnIndices := make(map[string]int)
+	for idx, colName := range header {
+		columnIndices[colName] = idx
+	}
+	// Check if desired columns exist
+	for _, col := range desiredColumns {
+		if _, ok := columnIndices[col]; !ok {
+			log.Fatalf("Column %s not found in header", col)
+		}
+	}
+	var bestextract []csvextract
+
+	for _, row := range records[1:] {
+		data := csvextract{
+			OSCEM:          row[columnIndices["OSCEM"]],
+			fromxml:        row[columnIndices["fromxml"]],
+			frommdoc:       row[columnIndices["frommdoc"]],
+			optionals_mdoc: row[columnIndices["optionals_mdoc"]],
+			units:          row[columnIndices["units"]],
+			crunchfromxml:  row[columnIndices["crunchfromxml"]],
+			crunchfrommdoc: row[columnIndices["crunchfrommdoc"]],
+		}
+		bestextract = append(bestextract, data)
+	}
+	return bestextract, nil
 }
+
 func unitcrunch(v string, fac string) (string, error) {
 	check, err := strconv.ParseFloat(v, 64)
 	factor, _ := strconv.ParseFloat(fac, 64)
@@ -309,4 +278,28 @@ func unitcrunch(v string, fac string) (string, error) {
 	back := strconv.FormatFloat(val, 'f', 16, 64)
 
 	return back, nil
+}
+
+func untangle(coll csvextract, prio bool, testing oscem.Instrument, acq_testing oscem.Acquisition, v string) (oscem.Instrument, oscem.Acquisition) {
+	// untangle the . seperation and send it against the OSCEM schema struct for field setting
+	untang := strings.Split(coll.OSCEM, ".")
+	length := len(untang)
+	if length > 2 {
+		err := SetField(&testing, strcase.UpperCamelCase(untang[length-2]), strcase.UpperCamelCase(untang[length-1]), v, coll.units, prio)
+		if err != nil {
+			err2 := SetField(&acq_testing, strcase.UpperCamelCase(untang[length-2]), strcase.UpperCamelCase(untang[length-1]), v, coll.units, prio)
+			if err2 != nil {
+				fmt.Println(err, err2)
+			}
+		}
+	} else {
+		err := SetField(&testing, "", strcase.UpperCamelCase(untang[length-1]), v, coll.units, prio)
+		if err != nil {
+			err2 := SetField(&acq_testing, "", strcase.UpperCamelCase(untang[length-1]), v, coll.units, prio)
+			if err2 != nil {
+				fmt.Println(err, err2)
+			}
+		}
+	}
+	return testing, acq_testing
 }
