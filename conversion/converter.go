@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -108,22 +107,22 @@ func setFieldValue(structValue reflect.Value, name, value, unit string, prio boo
 	return fmt.Errorf("provided value %s could not be converted to the appropriate type", value)
 }
 
-func Convert(jsonin []byte, content embed.FS) error {
+func Convert(jsonin []byte, content embed.FS, p1Flag string, p2Flag string) ([]byte, error) {
 
 	csvRecords, err := readCSVFile(content)
 	if err != nil {
 		fmt.Println("Error reading CSV file:", err)
-		return err
+		return nil, err
 	}
 
 	var jsonData map[string]string
 	err = json.Unmarshal(jsonin, &jsonData)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var testing oscem.Instrument
-	var acq_testing oscem.Acquisition
+	var acq_testing oscem.AcquisitionTomo
 
 	for k, v := range jsonData {
 		for _, test := range csvRecords {
@@ -142,8 +141,8 @@ func Convert(jsonin []byte, content embed.FS) error {
 				}
 			}
 			prio := false
-			if test.fromxml == k || test.frommdoc == k || test.optionals_mdoc == k {
-				if test.frommdoc == k {
+			if test.fromxml == k || test.frommdoc == k || test.optionals_mdoc == k || test.optionals_xml == k {
+				if test.frommdoc == k || test.optionals_mdoc == k {
 					prio = true
 				}
 				testing, acq_testing = untangle(test, prio, testing, acq_testing, v)
@@ -153,10 +152,21 @@ func Convert(jsonin []byte, content embed.FS) error {
 
 	// Set some defaults in a config file
 	var fixvalues map[string]string
-	errun := json.Unmarshal(configuration.Getconfig(), &fixvalues)
-	if errun != nil {
-		fmt.Println("config was not set and could not be obtained - make sure the config is set at ~/.config/LS_reader.conf")
+	if p1Flag == "" && p2Flag == "" {
+		config, err := configuration.Getconfig()
+		if err != nil {
+			fmt.Println("config was not set or could not be obtained - make sure the config is set using LS_Metadata_reader --c or you are using the --param flags")
+		}
+		errun := json.Unmarshal(config, &fixvalues)
+		if errun != nil {
+			fmt.Println("The config was non readable, make sure it is properly set using the --c flag or directly hand over parameters using the --param flags")
+		}
+	} else {
+		fixvalues = make(map[string]string)
+		fixvalues["CS"] = p1Flag
+		fixvalues["Gainref_FlipRotate"] = p2Flag
 	}
+
 	SetField(&acq_testing, "", "GainrefFlipRotate", fixvalues["Gainref_FlipRotate"], "", false)
 	SetField(&testing, "", "Cs", fixvalues["CS"], "mm", false)
 	//
@@ -166,26 +176,20 @@ func Convert(jsonin []byte, content embed.FS) error {
 	// Filter out fields that are nil
 	wut, err := json.Marshal(mh)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// this allows us to obtain nil values for types where Go usually doesnt allow them e.g. int
 	var kek interface{}
 	err = json.Unmarshal(wut, &kek)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cleaned := CleanMap(kek)
 	out, err := json.MarshalIndent(cleaned, "", "   ")
-	cwd, _ := os.Getwd()
-	cut := strings.Split(cwd, string(os.PathSeparator))
-	name := cut[len(cut)-1] + ".json"
 	if err != nil {
-		fmt.Print(err)
-	} else {
-		os.WriteFile(name, out, 0644)
-		fmt.Println("Extracted data was written to: ", name)
+		fmt.Println("Json generation failed ", err)
 	}
-	return nil
+	return out, nil
 }
 
 // CleanMap removes nil values from a map of maps
@@ -219,6 +223,7 @@ type csvextract struct {
 	units          string
 	crunchfromxml  string
 	crunchfrommdoc string
+	optionals_xml  string
 }
 
 func readCSVFile(content embed.FS) ([]csvextract, error) {
@@ -234,7 +239,7 @@ func readCSVFile(content embed.FS) ([]csvextract, error) {
 	if err != nil {
 		return nil, err
 	}
-	desiredColumns := []string{"OSCEM", "fromxml", "frommdoc", "optionals_mdoc", "units", "crunchfromxml", "crunchfrommdoc"}
+	desiredColumns := []string{"OSCEM", "fromxml", "frommdoc", "optionals_mdoc", "units", "crunchfromxml", "crunchfrommdoc", "optionals_xml"}
 
 	header := records[0]
 	// correct csv bullshit
@@ -262,6 +267,7 @@ func readCSVFile(content embed.FS) ([]csvextract, error) {
 			units:          row[columnIndices["units"]],
 			crunchfromxml:  row[columnIndices["crunchfromxml"]],
 			crunchfrommdoc: row[columnIndices["crunchfrommdoc"]],
+			optionals_xml:  row[columnIndices["optionals_xml"]],
 		}
 		bestextract = append(bestextract, data)
 	}
@@ -280,7 +286,7 @@ func unitcrunch(v string, fac string) (string, error) {
 	return back, nil
 }
 
-func untangle(coll csvextract, prio bool, testing oscem.Instrument, acq_testing oscem.Acquisition, v string) (oscem.Instrument, oscem.Acquisition) {
+func untangle(coll csvextract, prio bool, testing oscem.Instrument, acq_testing oscem.AcquisitionTomo, v string) (oscem.Instrument, oscem.AcquisitionTomo) {
 	// untangle the . seperation and send it against the OSCEM schema struct for field setting
 	untang := strings.Split(coll.OSCEM, ".")
 	length := len(untang)

@@ -1,0 +1,113 @@
+{
+   "acquisition": {
+      "beamshift": {
+         "x_max": {
+            "unit": "mrad",
+            "value": -0.0160271488130093
+         },
+         "x_min": {
+            "unit": "mrad",
+            "value": -0.0263405106961727
+         },
+         "y_max": {
+            "unit": "mrad",
+            "value": 0.0382381789386272
+         },
+         "y_min": {
+            "unit": "mrad",
+            "value": 0.0075393673032522
+         }
+      },
+      "beamtilt": {
+         "x_max": {
+            "unit": "mrad",
+            "value": -0.03006351739168167
+         },
+         "y_max": {
+            "unit": "mrad",
+            "value": 0.00539917079731822
+         }
+      },
+      "binning_camera": 1,
+      "calibrated_defocus": {
+         "maximal": {
+            "unit": "nm",
+            "value": -3080.6458017
+         },
+         "minimal": {
+            "unit": "nm",
+            "value": -3080.7366167
+         }
+      },
+      "date_time": "2024-09-01T06:01:10+02:00",
+      "detector": "Falcon 4i",
+      "dose_per_movie": {
+         "unit": "1/Å^2",
+         "value": 4.743577335374314
+      },
+      "energy_filter": {
+         "used": true,
+         "width": {
+            "unit": "eV",
+            "value": 10
+         }
+      },
+      "exposure_time": {
+         "unit": "s",
+         "value": 0.619959
+      },
+      "gainref_flip_rotate": "none",
+      "image_size": {
+         "height": 4096,
+         "width": 4096
+      },
+      "images_generated": 2,
+      "imageshift": {
+         "x_max": {
+            "unit": "um",
+            "value": 0
+         },
+         "x_min": {
+            "unit": "um",
+            "value": 0
+         },
+         "y_max": {
+            "unit": "um",
+            "value": 0
+         },
+         "y_min": {
+            "unit": "um",
+            "value": 0
+         }
+      },
+      "microscope_software": "EPU",
+      "nominal_magnification": 270000,
+      "pixel_size": {
+         "unit": "Å",
+         "value": 0.4150152790871608
+      },
+      "specialist_optics": {
+         "phaseplate": {
+            "used": false
+         }
+      }
+   },
+   "instrument": {
+      "acceleration_voltage": {
+         "unit": "kV",
+         "value": 300
+      },
+      "c2_aperture": {
+         "unit": "um",
+         "value": 20
+      },
+      "cs": {
+         "unit": "mm",
+         "value": 2.7
+      },
+      "electron_source": "FieldEmission",
+      "illumination": "Parallel",
+      "imaging": "BrightField",
+      "microscope": "TITAN52339260"
+   }
+}

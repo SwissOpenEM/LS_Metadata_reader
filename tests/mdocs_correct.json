@@ -1,0 +1,97 @@
+{
+   "acquisition": {
+      "binning_camera": 1,
+      "calibrated_defocus": {
+         "maximal": {
+            "unit": "nm",
+            "value": 8659.539999999999
+         },
+         "minimal": {
+            "unit": "nm",
+            "value": -16366.499999999998
+         }
+      },
+      "date_time": "2023-05-03T13:59:32Z",
+      "detector": "",
+      "dose_per_movie": {
+         "unit": "1/Å^2",
+         "value": 3.08367
+      },
+      "energy_filter": {
+         "used": true,
+         "width": {
+            "unit": "eV",
+            "value": 20
+         }
+      },
+      "exposure_time": {
+         "unit": "s",
+         "value": 2.6
+      },
+      "frames_per_movie": 26,
+      "gainref_flip_rotate": "none",
+      "image_size": {
+         "height": 3838,
+         "width": 3708
+      },
+      "images_generated": 2,
+      "imageshift": {
+         "x_max": {
+            "unit": "um",
+            "value": 1.70971
+         },
+         "x_min": {
+            "unit": "um",
+            "value": -0.777289
+         },
+         "y_max": {
+            "unit": "um",
+            "value": 0.517016
+         },
+         "y_min": {
+            "unit": "um",
+            "value": -0.796522
+         }
+      },
+      "microscope_software": "SerialEM",
+      "nominal_defocus": {
+         "minimal": {
+            "unit": "nm",
+            "value": -3500
+         }
+      },
+      "nominal_magnification": 53000,
+      "pixel_size": {
+         "unit": "Å",
+         "value": 2.66
+      },
+      "tilt_angle": {
+         "increment": {
+            "unit": "°",
+            "value": 2.9249175
+         },
+         "maximal": {
+            "unit": "°",
+            "value": 49.9969
+         },
+         "minimal": {
+            "unit": "°",
+            "value": -66.9998
+         }
+      },
+      "tilt_axis_angle": {
+         "unit": "°",
+         "value": 84.3
+      }
+   },
+   "instrument": {
+      "acceleration_voltage": {
+         "unit": "kV",
+         "value": 300
+      },
+      "cs": {
+         "unit": "mm",
+         "value": 2.7
+      }
+   }
+}

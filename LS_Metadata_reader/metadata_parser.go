@@ -178,6 +178,18 @@ func process_mdoc(input string) (map[string]string, error) {
 			value, exists := mdoc_results[match[1]]
 			if !exists {
 				mdoc_results[match[1]] = match[2]
+				// grab the first occurence of a tuple as well
+				_, err := strconv.ParseFloat(strings.TrimSpace(match[2]), 64)
+				gate := len(strings.Split(match[2], " "))
+				if err != nil && gate > 1 {
+					beamshift := strings.Contains(scanner.Text(), "Beamshift") // check for correct syntax only present in newer versions of SerialEM
+					imageShift := strings.Contains(scanner.Text(), "ImageShift")
+					stagepos := strings.Contains(scanner.Text(), "StagePosition")
+					if beamshift || imageShift || stagepos {
+						mdoc_results = untuple(mdoc_results, match[1], match[2])
+					}
+					continue
+				}
 			} else if value == match[2] {
 				// Grab some Tuples
 				energy := strings.Contains(scanner.Text(), "FilterSlitAndLoss")
@@ -226,7 +238,7 @@ func process_mdoc(input string) (map[string]string, error) {
 
 	// get tiltangle at the end if applicable
 	_, existtilt := mdoc_results["TiltAngle"]
-	if existtilt {
+	if existtilt && count != 0.00 {
 		tiltmax, err := strconv.ParseFloat(strings.TrimSpace(mdoc_results["TiltAngle_max"]), 64)
 		if err != nil {
 			fmt.Println("Tilt angle increment calculation failed")
@@ -355,16 +367,7 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 					}
 				}
 				test, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-				if err != nil {
-					// Get the beam and stage tuples from mdocs across multiple images
-					beamshift := strings.Contains(key, "Beamshift") // check for correct syntax only present in newer versions of SerialEM
-					imageShift := strings.Contains(key, "ImageShift")
-					stagepos := strings.Contains(key, "StagePosition")
-					if beamshift || imageShift || stagepos {
-						overallmap = untuple(overallmap, key, valuenew)
-					}
-					continue
-				} else {
+				if err == nil {
 					new, _ := strconv.ParseFloat(strings.TrimSpace(valuenew), 64)
 					keymin, existmin := overallmap[key+"_min"]
 					keymax, existmax := overallmap[key+"_max"]
@@ -492,7 +495,7 @@ func isHidden(name string) bool {
 	return len(name) > 0 && name[0] == '.'
 }
 
-func Reader(directory string, zFlag bool, fFlag bool) ([]byte, error) {
+func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, error) {
 
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(directory)
@@ -516,14 +519,23 @@ func Reader(directory string, zFlag bool, fFlag bool) ([]byte, error) {
 		fmt.Println("Folder search failed - is this the correct directory?", err)
 		return nil, err
 	}
-
-	var getmpc map[string]string
-	errun := json.Unmarshal(configuration.Getconfig(), &getmpc)
-	if errun != nil {
-		fmt.Println("config was not set or could not be obtained - make sure the config is set at ~/.config/LS_reader.conf")
+	var parallel string
+	if p3Flag == "" {
+		var getmpc map[string]string
+		config, err := configuration.Getconfig()
+		if err != nil {
+			fmt.Println("No path config available, we suggest using either --param3 or the config to provide the path where EPU mirrors the datasets and stores xmls")
+		} else {
+			errun := json.Unmarshal(config, &getmpc)
+			if errun != nil {
+				fmt.Println("Your config was unretrievable, make sure it is set and accessible or use the param flags")
+			}
+			parallel = getmpc["MPCPATH"]
+		}
+	} else {
+		parallel = p3Flag
 	}
 
-	parallel := getmpc["MPCPATH"]
 	if parallel != "" {
 		dataFolders, err = findDataFolders(parallel+target, dataFolders)
 		dataFolders = append(dataFolders, directory)

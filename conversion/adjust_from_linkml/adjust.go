@@ -31,6 +31,8 @@ func main() {
 	fileContent = strings.ReplaceAll(fileContent, "Any", "basetypes.String")
 	fileContent = strings.ReplaceAll(fileContent, "type basetypes.Float64", "type QuantityValue")
 	fileContent = strings.ReplaceAll(fileContent, "type basetypes.String", "type Any")
+	fileContent = strings.ReplaceAll(fileContent, "Acquisition", "//Acquisition")
+	fileContent = strings.ReplaceAll(fileContent, "type //Acquisition", "type Acquisition")
 
 	// making sure any imported OSCEM schema works - provided it is compatible with the conversions table.
 	pattern := "oscem-.*"

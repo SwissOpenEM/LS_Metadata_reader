@@ -1,6 +1,6 @@
 package oscem
-import "LS_reader/conversion/basetypes"
 
+import "LS_reader/conversion/basetypes"
 
 /*
  * The min, max and increment of the tilt angle in a tomography session. Unit is degree.
@@ -25,10 +25,10 @@ type TiltAngle struct {
 }
 
 /*
- * basetypes.String type, used as the base for type-narrowing.
+  - basetypes.String type, used as the base for type-narrowing.
 
 See https://linkml.io/linkml/schemas/advanced.html
- */
+*/
 type Any struct {
 }
 
@@ -117,7 +117,6 @@ type QuantityValue struct {
 	 */
 	Value basetypes.Float64 `json:"value"`
 }
-
 
 type Acquisition struct {
 	/*
@@ -230,7 +229,6 @@ type Acquisition struct {
 	GainrefFlipRotate basetypes.String `json:"gainref_flip_rotate"`
 }
 
-
 type EnergyFilter struct {
 	/*
 	 * whether a specific instrument was used during data acquisition
@@ -245,7 +243,6 @@ type EnergyFilter struct {
 	 */
 	Width basetypes.Int `json:"width"`
 }
-
 
 type SpecialistOptics struct {
 	/*
@@ -262,7 +259,6 @@ type SpecialistOptics struct {
 	ChromaticAberrationCorrector ChromaticAberrationCorrector `json:"chromatic_aberration_corrector"`
 }
 
-
 type Phaseplate struct {
 	/*
 	 * whether a specific instrument was used during data acquisition
@@ -274,7 +270,6 @@ type Phaseplate struct {
 	InstrumentType basetypes.String `json:"instrument_type"`
 }
 
-
 type SphericalAberrationCorrector struct {
 	/*
 	 * whether a specific instrument was used during data acquisition
@@ -285,7 +280,6 @@ type SphericalAberrationCorrector struct {
 	 */
 	InstrumentType basetypes.String `json:"instrument_type"`
 }
-
 
 type ChromaticAberrationCorrector struct {
 	/*
@@ -540,7 +534,6 @@ type Sample struct {
 	Grid Grid `json:"grid"`
 }
 
-
 type Person struct {
 	/*
 	 * name
@@ -563,7 +556,6 @@ type Person struct {
 	 */
 	WorkPhone basetypes.String `json:"work_phone"`
 }
-
 
 type Author struct {
 	/*
@@ -672,12 +664,11 @@ type EMDataset struct {
 	Authors []Author `json:"authors"`
 }
 
-
 type AcquisitionTomo struct {
 	/*
 	 * parent types
 	 */
-	Acquisition
+	//Acquisition
 	/*
 	 * The tilt axis angle of a tomography series
 	 */
@@ -795,5 +786,3 @@ type AcquisitionTomo struct {
 	 */
 	GainrefFlipRotate basetypes.String `json:"gainref_flip_rotate"`
 }
-
-

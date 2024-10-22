@@ -1,0 +1,67 @@
+{
+   "acquisition": {
+      "binning_camera": 1,
+      "calibrated_defocus": {
+         "maximal": {
+            "unit": "nm",
+            "value": -2053.21
+         },
+         "minimal": {
+            "unit": "nm",
+            "value": -2509.06
+         }
+      },
+      "date_time": "2023-09-25T14:13:26Z",
+      "detector": "",
+      "dose_per_movie": {
+         "unit": "1/Å^2",
+         "value": 39.2291
+      },
+      "exposure_time": {
+         "unit": "s",
+         "value": 3
+      },
+      "frames_per_movie": 40,
+      "gainref_flip_rotate": "none",
+      "images_generated": 2,
+      "imageshift": {
+         "x_max": {
+            "unit": "um",
+            "value": 1.52034
+         },
+         "x_min": {
+            "unit": "um",
+            "value": 1.43117
+         },
+         "y_max": {
+            "unit": "um",
+            "value": -0.941825
+         },
+         "y_min": {
+            "unit": "um",
+            "value": -4.81549
+         }
+      },
+      "nominal_defocus": {
+         "minimal": {
+            "unit": "nm",
+            "value": -2000
+         }
+      },
+      "nominal_magnification": 165000,
+      "pixel_size": {
+         "unit": "Å",
+         "value": 0.82
+      }
+   },
+   "instrument": {
+      "acceleration_voltage": {
+         "unit": "kV",
+         "value": 300
+      },
+      "cs": {
+         "unit": "mm",
+         "value": 2.7
+      }
+   }
+}
