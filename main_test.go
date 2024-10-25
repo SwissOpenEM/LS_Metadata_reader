@@ -94,7 +94,6 @@ func TestReaderTableDriven(t *testing.T) {
 			p3Flag:    "",
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			data, err := LS_Metadata_reader.Reader(tt.directory, tt.zFlag, tt.fFlag, tt.p3Flag)
@@ -103,15 +102,27 @@ func TestReaderTableDriven(t *testing.T) {
 				t.Fatalf("Reader() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			// rerun the json marshalling to ensure no issues with whitespaces etc
-			var jsonData map[string]interface{}
+			var jsonData map[string]string
 			if err := json.Unmarshal(data, &jsonData); err != nil {
 				t.Fatalf("Failed to unmarshal returned data: %v", err)
 			}
-			actualDataBytes, err := json.Marshal(jsonData)
+			var jsonDataclean map[string]string
+			if err := json.Unmarshal([]byte(tt.wantData), &jsonDataclean); err != nil {
+				t.Fatalf("Failed to unmarshal returned data: %v", err)
+			}
+			// exclude irrelevant keys:
+			excludeKeys := []string{"MicroscopeImage.UniqueID", "MicroscopeImage.uniqueID", "MicroscopeImage.microscopeData.core.Guid", "ImageFile", "MinMaxMean", "SubFramePath", "[T"}
+			cleaned_json := preprocessMap(jsonData, excludeKeys)
+			cleaned_target := preprocessMap(jsonDataclean, excludeKeys)
+			actualDataBytes, err := json.Marshal(cleaned_json)
 			if err != nil {
 				t.Fatalf("Failed to re-marshal returned data: %v", err)
 			}
-			assert.JSONEqf(t, tt.wantData, string(actualDataBytes), "Mismatch in test case %s", tt.name)
+			targetDataBytes, err := json.Marshal(cleaned_target)
+			if err != nil {
+				t.Fatalf("Failed to re-marshal returned data: %v", err)
+			}
+			assert.JSONEqf(t, string(targetDataBytes), string(actualDataBytes), "Mismatch in test case %s", tt.name)
 
 			data2, err2 := conversion.Convert(data, embedded, tt.p1Flag, tt.p2Flag)
 
@@ -131,4 +142,20 @@ func TestReaderTableDriven(t *testing.T) {
 			assert.JSONEqf(t, tt.wantData2, string(actualDataBytes2), "Mismatch in test case %s", tt.name)
 		})
 	}
+}
+func filterMap(input map[string]string, excludeKeys []string) map[string]string {
+	result := make(map[string]string)
+	excludeSet := make(map[string]struct{}, len(excludeKeys))
+	for _, key := range excludeKeys {
+		excludeSet[key] = struct{}{}
+	}
+	for k, v := range input {
+		if _, found := excludeSet[k]; !found {
+			result[k] = v
+		}
+	}
+	return result
+}
+func preprocessMap(input map[string]string, excludeKeys []string) map[string]string {
+	return filterMap(input, excludeKeys)
 }

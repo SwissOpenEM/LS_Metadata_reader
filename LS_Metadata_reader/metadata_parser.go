@@ -15,7 +15,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"golang.org/x/exp/mmap"
 )
 
 // XML PART
@@ -66,18 +69,18 @@ func process_xml(input string) (map[string]string, error) {
 	if strings.Contains(input, "BatchPositionsList") {
 		return nil, nil
 	}
-	xmlFile, err := os.Open(input)
+	reader, err := mmap.Open(input)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
 		return nil, err
 	}
-	defer xmlFile.Close()
+	defer reader.Close()
 
-	xmlData, err := ioutil.ReadAll(xmlFile)
+	xmlData := make([]byte, reader.Len())
+	_, err = reader.ReadAt(xmlData, 0)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
 		return nil, err
 	}
+
 	var root Element
 	err = xml.Unmarshal(xmlData, &root)
 	if err != nil {
@@ -298,11 +301,11 @@ func process_mdoc(input string) (map[string]string, error) {
 	for key := range mdoc_results {
 		_, upexist := mdoc_results[key+"_max"]
 		_, dwnexist := mdoc_results[key+"_min"]
-		if upexist || dwnexist {
+		_, xmxexist := mdoc_results[key+"_x_max"] // remove original tuple form for imageshift and stageshift
+		if upexist || dwnexist || xmxexist {
 			delete(mdoc_results, key)
 		}
 	}
-	//return
 	return mdoc_results, err
 }
 
@@ -407,34 +410,72 @@ func readin(directory string) ([]map[string]string, []map[string]string, []strin
 	var mdocContents []map[string]string
 	var xmlList []string
 
+	type xmlResult struct {
+		filePath string
+		content  map[string]string
+	}
+
+	type mdocResult struct {
+		content map[string]string
+	}
+
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	for _, file := range files {
-		if !file.IsDir() && !isHidden(file.Name()) {
-			filePath := filepath.Join(directory, file.Name())
-			switch filepath.Ext(file.Name()) {
+
+	jobs := make(chan string, len(files))
+	results := make(chan interface{}, len(files))
+	var wg sync.WaitGroup
+
+	// set default number workers here - might add flag
+	numWorkers := 16
+
+	worker := func(jobs <-chan string, results chan<- interface{}) {
+		for filePath := range jobs {
+			switch filepath.Ext(filePath) {
 			case ".xml":
 				xmlContent, err := process_xml(filePath)
 				if err == nil {
-					xmlContents = append(xmlContents, xmlContent)
+					results <- xmlResult{filePath: filePath, content: xmlContent}
 				} else {
-					fmt.Println("Import of ", filePath, " failed")
+					fmt.Println("Import of", filePath, "failed")
 				}
-				xmlList = append(xmlList, filePath)
 			case ".mdoc":
 				mdocContent, err := process_mdoc(filePath)
 				if err == nil {
-					mdocContents = append(mdocContents, mdocContent)
+					results <- mdocResult{content: mdocContent}
 				} else {
-					fmt.Println("Import of ", filePath, " failed")
+					fmt.Println("Import of", filePath, "failed")
 				}
 			}
 		}
+		wg.Done()
 	}
 
-	return mdocContents, xmlContents, xmlList, err
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go worker(jobs, results)
+	}
+	for _, file := range files {
+		if !file.IsDir() && !isHidden(file.Name()) {
+			jobs <- filepath.Join(directory, file.Name())
+		}
+	}
+	close(jobs)
+	wg.Wait()
+	close(results)
+	for result := range results {
+		switch res := result.(type) {
+		case xmlResult:
+			xmlContents = append(xmlContents, res.content)
+			xmlList = append(xmlList, res.filePath)
+		case mdocResult:
+			mdocContents = append(mdocContents, res.content)
+		}
+	}
+
+	return mdocContents, xmlContents, xmlList, nil
 }
 
 func zipFiles(files []string) error {

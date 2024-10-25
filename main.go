@@ -16,6 +16,16 @@ import (
 var content embed.FS
 
 func main() {
+	//for benchmarking
+	/*f, err := os.Create("trace.out")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	if err := trace.Start(f); err != nil {
+		panic(err)
+	}
+	defer trace.Stop()*/
 
 	zFlag := flag.Bool("z", false, "Toggle whether to make a zip archive of all xml files - default: false")
 	fFlag := flag.Bool("f", false, "Toggle whether the full metadata is also written out in addition to the OSCEM schema conform one- default: false")
@@ -52,8 +62,6 @@ func main() {
 	} else {
 		directory = posArgs[0]
 	}
-
-	// Get the directory from the command-line argument
 
 	data, err := LS_Metadata_reader.Reader(directory, *zFlag, *fFlag, *p3Flag)
 	if err != nil {
