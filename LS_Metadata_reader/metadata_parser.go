@@ -427,6 +427,9 @@ func readin(directory string) ([]map[string]string, []map[string]string, []strin
 	jobs := make(chan string, len(files))
 	results := make(chan interface{}, len(files))
 	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var completed int
+	full := len(files)
 
 	// set default number workers here - might add flag
 	numWorkers := 16
@@ -441,6 +444,7 @@ func readin(directory string) ([]map[string]string, []map[string]string, []strin
 				} else {
 					fmt.Println("Import of", filePath, "failed")
 				}
+				completed++
 			case ".mdoc":
 				mdocContent, err := process_mdoc(filePath)
 				if err == nil {
@@ -448,7 +452,12 @@ func readin(directory string) ([]map[string]string, []map[string]string, []strin
 				} else {
 					fmt.Println("Import of", filePath, "failed")
 				}
+				completed++
 			}
+			mu.Lock()
+			progress := float64(completed) / float64(full) * 100
+			mu.Unlock()
+			fmt.Printf("Progress: %.2f%%\n", progress)
 		}
 		wg.Done()
 	}
