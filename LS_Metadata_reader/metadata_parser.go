@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/exp/mmap"
@@ -404,87 +405,39 @@ func merge_to_dataset_level(listofcontents []map[string]string) map[string]strin
 	return overallmap
 }
 
-// Readin - evaluation
-func readin(directory string) ([]map[string]string, []map[string]string, []string, error) {
-	var xmlContents []map[string]string
-	var mdocContents []map[string]string
-	var xmlList []string
+type xmlResult struct {
+	filePath string
+	content  map[string]string
+}
 
-	type xmlResult struct {
-		filePath string
-		content  map[string]string
-	}
+type mdocResult struct {
+	content map[string]string
+}
 
-	type mdocResult struct {
-		content map[string]string
-	}
-
-	files, err := ioutil.ReadDir(directory)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	jobs := make(chan string, len(files))
-	results := make(chan interface{}, len(files))
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	var completed int
-	full := len(files)
-
-	// set default number workers here - might add flag
-	numWorkers := 16
-
-	worker := func(jobs <-chan string, results chan<- interface{}) {
-		for filePath := range jobs {
-			switch filepath.Ext(filePath) {
-			case ".xml":
-				xmlContent, err := process_xml(filePath)
-				if err == nil {
-					results <- xmlResult{filePath: filePath, content: xmlContent}
-				} else {
-					fmt.Println("Import of", filePath, "failed")
-				}
-				completed++
-			case ".mdoc":
-				mdocContent, err := process_mdoc(filePath)
-				if err == nil {
-					results <- mdocResult{content: mdocContent}
-				} else {
-					fmt.Println("Import of", filePath, "failed")
-				}
-				completed++
+func readin(jobs <-chan string, results chan<- interface{}, wg *sync.WaitGroup, progresstracker *ProgressTracker) {
+	defer wg.Done()
+	for filePath := range jobs {
+		switch filepath.Ext(filePath) {
+		case ".xml":
+			xmlContent, err := process_xml(filePath)
+			if err == nil {
+				results <- xmlResult{filePath: filePath, content: xmlContent}
+			} else {
+				fmt.Println("Import of", filePath, "failed")
 			}
-			mu.Lock()
-			progress := float64(completed) / float64(full) * 100
-			mu.Unlock()
-			fmt.Printf("Progress: %.2f%%\n", progress)
-		}
-		wg.Done()
-	}
+		case ".mdoc":
+			mdocContent, err := process_mdoc(filePath)
+			if err == nil {
+				results <- mdocResult{content: mdocContent}
+			} else {
+				fmt.Println("Import of", filePath, "failed")
+			}
 
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go worker(jobs, results)
-	}
-	for _, file := range files {
-		if !file.IsDir() && !isHidden(file.Name()) {
-			jobs <- filepath.Join(directory, file.Name())
+		default:
+			fmt.Printf("Unknown file type: %s\n", filePath)
 		}
+		atomic.AddInt64(&progresstracker.Completed, 1)
 	}
-	close(jobs)
-	wg.Wait()
-	close(results)
-	for result := range results {
-		switch res := result.(type) {
-		case xmlResult:
-			xmlContents = append(xmlContents, res.content)
-			xmlList = append(xmlList, res.filePath)
-		case mdocResult:
-			mdocContents = append(mdocContents, res.content)
-		}
-	}
-
-	return mdocContents, xmlContents, xmlList, nil
 }
 
 func zipFiles(files []string) error {
@@ -545,6 +498,40 @@ func isHidden(name string) bool {
 	return len(name) > 0 && name[0] == '.'
 }
 
+type ProgressTracker struct {
+	Total     int64
+	Completed int64
+}
+
+func startProgressReporter(progressTracker *ProgressTracker) {
+	for {
+		completed := atomic.LoadInt64(&progressTracker.Completed)
+		total := atomic.LoadInt64(&progressTracker.Total)
+		progress := float64(completed) / float64(total) * 100
+		fmt.Printf("\rProgress: %.2f%%", progress)
+		if completed >= total {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func collectAllFiles(directories []string) ([]string, error) {
+	var allFiles []string
+	for _, dir := range directories {
+		files, err := ioutil.ReadDir(dir)
+		if err != nil {
+			return nil, err
+		}
+		for _, file := range files {
+			if !file.IsDir() && !isHidden(file.Name()) && (filepath.Ext(file.Name()) == ".xml" || filepath.Ext(file.Name()) == ".mdoc") {
+				allFiles = append(allFiles, filepath.Join(dir, file.Name()))
+			}
+		}
+	}
+	return allFiles, nil
+}
+
 func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, error) {
 
 	// Check if the provided directory exists
@@ -588,35 +575,51 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 
 	if parallel != "" {
 		dataFolders, err = findDataFolders(parallel+target, dataFolders)
-		dataFolders = append(dataFolders, directory)
 		if err != nil {
 			fmt.Println("There should be a folder on your instrument control computer with the same name - something went wrong here", err)
 			return nil, err
 		}
 	}
+	dataFolders = append(dataFolders, directory)
+	progress := &ProgressTracker{}
+
+	allfiles, err := collectAllFiles(dataFolders)
+	if err != nil {
+		fmt.Println("Could not collect files:", dataFolders, err)
+	}
+	progress.Total = int64(len(allfiles))
+	fmt.Printf("Total number of files to process: %d\n", progress.Total)
+	go startProgressReporter(progress)
+
+	jobs := make(chan string, len(allfiles))
+	for _, filePath := range allfiles {
+		jobs <- filePath
+	}
+	close(jobs)
+
 	var mdoc_files []map[string]string
 	var xml_files []map[string]string
 	var listxml []string
-	if dataFolders == nil {
-		mdoc_files, xml_files, listxml, err = readin(directory)
-		if err != nil {
-			fmt.Println("Are you sure this was the correct directory?", err)
-			return nil, err
-		}
-	} else {
-		for _, folder := range dataFolders {
-			tmp_mdoc, tmp_xml, tmp_list, err := readin(folder)
-			if err != nil {
-				fmt.Println("Are you sure this was the correct directory?", err)
-				return nil, err
-			} else {
-				mdoc_files = append(mdoc_files, tmp_mdoc...)
-				xml_files = append(xml_files, tmp_xml...)
-				listxml = append(listxml, tmp_list...)
-			}
-		}
+
+	var wg sync.WaitGroup
+	numWorkers := 16
+	results := make(chan interface{}, len(allfiles))
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go readin(jobs, results, &wg, progress)
 	}
 
+	wg.Wait()
+	close(results)
+	for result := range results {
+		switch res := result.(type) {
+		case xmlResult:
+			xml_files = append(xml_files, res.content)
+			listxml = append(listxml, res.filePath)
+		case mdocResult:
+			mdoc_files = append(mdoc_files, res.content)
+		}
+	}
 	// whether to generate zip of xmls
 	if zFlag && listxml != nil {
 		zipFiles(listxml)
