@@ -510,6 +510,7 @@ func startProgressReporter(progressTracker *ProgressTracker) {
 		progress := float64(completed) / float64(total) * 100
 		fmt.Printf("\rProgress: %.2f%%", progress)
 		if completed >= total {
+			fmt.Printf("\n")
 			break
 		}
 		time.Sleep(100 * time.Millisecond)
