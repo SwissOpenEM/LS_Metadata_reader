@@ -41,21 +41,21 @@ func Changeconfig() {
 	reader := bufio.NewReader(os.Stdin)
 	input1, err := reader.ReadString('\n')
 	if err != nil {
-		fmt.Println("Error reading input:", err)
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
 		return
 	}
 	fmt.Println("And what is the rotation or flipping that needs to be done when importing the gain reference to e.g cryosparc?")
 	reader2 := bufio.NewReader(os.Stdin)
 	input2, err := reader2.ReadString('\n')
 	if err != nil {
-		fmt.Println("Error reading input:", err)
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
 		return
 	}
 	fmt.Println("If available what is the path where EPU mirrors your data output and dumps its metadata .xmls (typically this is on the microscope computer). If you dont know/ cant reach that folder leave this empty. For optimal usage of this tool this is however required.")
 	reader3 := bufio.NewReader(os.Stdin)
 	input3, err := reader3.ReadString('\n')
 	if err != nil {
-		fmt.Println("Error reading input:", err)
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
 		return
 	}
 	configmap := make(map[string]string)
@@ -64,12 +64,12 @@ func Changeconfig() {
 	configmap["MPCPATH"] = strings.TrimSpace(input3)
 	config, err := json.MarshalIndent(configmap, "", "    ")
 	if err != nil {
-		fmt.Println("Error generating config:", err)
+		fmt.Fprintln(os.Stderr, "Error generating config:", err)
 		return
 	}
 	err = os.WriteFile(configFilePath, config, 0644)
 	if err != nil {
-		fmt.Println("Error generating config:", err)
+		fmt.Fprintln(os.Stderr, "Error generating config:", err)
 	}
 	fmt.Println("Generated config at", configFilePath)
 }

@@ -42,12 +42,12 @@ func main() {
 	if *cFlag {
 		current, err := configuration.Getconfig()
 		if err != nil {
-			fmt.Println(" No prior config obtainable", err)
+			fmt.Fprintln(os.Stderr, " No prior config obtainable", err)
 		}
 		var grid map[string]string
 		err1 := json.Unmarshal(current, &grid)
 		if err1 != nil {
-			fmt.Println("Config exists but reading it failed", err)
+			fmt.Fprintln(os.Stderr, "Config exists but reading it failed", err)
 		}
 		fmt.Println("current config:\n", grid)
 		configuration.Changeconfig()
@@ -65,11 +65,11 @@ func main() {
 
 	data, err := LS_Metadata_reader.Reader(directory, *zFlag, *fFlag, *p3Flag)
 	if err != nil {
-		fmt.Println("The extraction went wrong due to", err)
+		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err)
 	}
 	output, err1 := conversion.Convert(data, content, *p1Flag, *p2Flag)
 	if err1 != nil {
-		fmt.Println("The extraction went wrong due to", err1)
+		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err1)
 	}
 	if *oFlag == "" {
 		cwd, _ := os.Getwd()

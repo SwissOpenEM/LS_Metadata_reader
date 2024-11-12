@@ -85,7 +85,7 @@ func process_xml(input string) (map[string]string, error) {
 	var root Element
 	err = xml.Unmarshal(xmlData, &root)
 	if err != nil {
-		fmt.Println("Error unmarshaling XML:", err)
+		fmt.Fprintln(os.Stderr, "Error unmarshaling XML:", err)
 		return nil, err
 	}
 
@@ -95,7 +95,7 @@ func process_xml(input string) (map[string]string, error) {
 	var image MicroscopeImage
 	err = xml.Unmarshal(xmlData, &image)
 	if err != nil {
-		fmt.Println("Error unmarshaling XML:", err)
+		fmt.Fprintln(os.Stderr, "Error unmarshaling XML:", err)
 		return nil, err
 	}
 	leafNodes["MicroscopeImage.Name"] = image.Name
@@ -136,7 +136,7 @@ func process_mdoc(input string) (map[string]string, error) {
 	re := regexp.MustCompile(`(.+?)\s*=\s*(.+)`)
 	mdocFile, err := os.Open(input)
 	if err != nil {
-		fmt.Printf("Welp your file didnt open")
+		fmt.Fprintln(os.Stderr, "Your file didnt open", err)
 		return nil, err
 	}
 	defer mdocFile.Close()
@@ -423,18 +423,17 @@ func readin(jobs <-chan string, results chan<- interface{}, wg *sync.WaitGroup, 
 			if err == nil {
 				results <- xmlResult{filePath: filePath, content: xmlContent}
 			} else {
-				fmt.Println("Import of", filePath, "failed")
+				fmt.Fprintln(os.Stderr, "Import of", filePath, "failed")
 			}
 		case ".mdoc":
 			mdocContent, err := process_mdoc(filePath)
 			if err == nil {
 				results <- mdocResult{content: mdocContent}
 			} else {
-				fmt.Println("Import of", filePath, "failed")
+				fmt.Fprintln(os.Stderr, "Import of", filePath, "failed")
 			}
-
 		default:
-			fmt.Printf("Unknown file type: %s\n", filePath)
+			fmt.Fprintf(os.Stderr, "Unknown file type: %s\n", filePath)
 		}
 		atomic.AddInt64(&progresstracker.Completed, 1)
 	}
@@ -538,13 +537,13 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(directory)
 	if os.IsNotExist(err) {
-		fmt.Printf("Error: Directory '%s' does not exist.\n", directory)
+		fmt.Fprintf(os.Stderr, "Error: Directory '%s' does not exist.\n", directory)
 		return nil, err
 	}
 
 	// Check if the provided path is a directory
 	if !fileInfo.IsDir() {
-		fmt.Printf("Error: '%s' is not a directory.\n", directory)
+		fmt.Fprintf(os.Stderr, "Error: '%s' is not a directory.\n", directory)
 		return nil, err
 	}
 	// this part is to make sure there is no confusion on the instrument computer search when running on the Athena server folder with "./"
@@ -554,7 +553,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 	var dataFolders []string
 	dataFolders, err = findDataFolders(directory, dataFolders)
 	if err != nil {
-		fmt.Println("Folder search failed - is this the correct directory?", err)
+		fmt.Fprintln(os.Stderr, "Folder search failed - is this the correct directory?", err)
 		return nil, err
 	}
 	var parallel string
@@ -586,7 +585,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 
 	allfiles, err := collectAllFiles(dataFolders)
 	if err != nil {
-		fmt.Println("Could not collect files:", dataFolders, err)
+		fmt.Fprintln(os.Stderr, "Could not collect files:", dataFolders, err)
 	}
 	progress.Total = int64(len(allfiles))
 	fmt.Printf("Total number of files to process: %d\n", progress.Total)
@@ -644,20 +643,20 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 
 	jsonData, err := json.MarshalIndent(out, "", "    ")
 	if err != nil {
-		fmt.Println("Error marshaling to JSON:", err)
+		fmt.Fprintln(os.Stderr, "Error marshaling to JSON:", err)
 		return nil, err
 	}
 	var nameout string
 	if len(correct) > 0 {
 		nameout = target + "_full.json"
 	} else {
-		fmt.Println("Name generation failed, returning to default")
+		fmt.Fprintln(os.Stderr, "Name generation failed, returning to default")
 		nameout = "Dataset_out.json"
 	}
 	if fFlag {
 		err = os.WriteFile(nameout, jsonData, 0644)
 		if err != nil {
-			fmt.Println("Error writing JSON to file:", err)
+			fmt.Fprintln(os.Stderr, "Error writing JSON to file:", err)
 		}
 		fmt.Println("Extracted full data has been written to ", nameout)
 	}

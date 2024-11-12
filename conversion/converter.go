@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -111,7 +112,7 @@ func Convert(jsonin []byte, content embed.FS, p1Flag string, p2Flag string) ([]b
 
 	csvRecords, err := readCSVFile(content)
 	if err != nil {
-		fmt.Println("Error reading CSV file:", err)
+		fmt.Fprintln(os.Stderr, "Error reading CSV file:", err)
 		return nil, err
 	}
 
@@ -129,14 +130,14 @@ func Convert(jsonin []byte, content embed.FS, p1Flag string, p2Flag string) ([]b
 			if test.crunchfromxml != "" && test.fromxml == k {
 				v, err = unitcrunch(v, test.crunchfromxml)
 				if err != nil {
-					fmt.Println("Unit crunching failed: ", err)
+					fmt.Fprintln(os.Stderr, "Unit crunching failed: ", err)
 					continue
 				}
 			}
 			if test.crunchfrommdoc != "" && (test.frommdoc == k || test.optionals_mdoc == k) {
 				v, err = unitcrunch(v, test.crunchfrommdoc)
 				if err != nil {
-					fmt.Println("Unit crunching failed: ", err)
+					fmt.Fprintln(os.Stderr, "Unit crunching failed: ", err)
 					continue
 				}
 			}
@@ -187,7 +188,7 @@ func Convert(jsonin []byte, content embed.FS, p1Flag string, p2Flag string) ([]b
 	cleaned := CleanMap(kek)
 	out, err := json.MarshalIndent(cleaned, "", "   ")
 	if err != nil {
-		fmt.Println("Json generation failed ", err)
+		fmt.Fprintln(os.Stderr, "Json generation failed ", err)
 	}
 	return out, nil
 }
