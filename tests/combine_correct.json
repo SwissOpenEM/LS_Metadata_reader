@@ -47,7 +47,7 @@
       },
       "energy_filter": {
          "used": true,
-         "width": {
+         "width_energy_filter": {
             "unit": "eV",
             "value": 20
          }

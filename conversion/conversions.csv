@@ -28,7 +28,7 @@ acquisition.dose_per_movie,DoseAverage,DoseAverage,,,_em_image_recording.avg_ele
 ,,,,,,,,,,,,,,
 acquisition.energy_filter.used,MicroscopeImage.microscopeData.optics.EnergyFilter.EnergySelectionSlitInserted,EnergyFilterUsed,,,,Bool,,,,,,,,
 acquisition.energy_filter.model,,,,,_em_imaging_optics.energyfilter_name,String,,,,,,,,
-acquisition.energy_filter.width,MicroscopeImage.microscopeData.optics.EnergyFilter.EnergySelectionSlitWidth,EnergyFilterSlitWidth,,filter.energy_offset,_em_imaging_optics.energyfilter_slit_width,Float64,,,,eV,,,electron_volts ,
+acquisition.energy_filter.width_energy_filter,MicroscopeImage.microscopeData.optics.EnergyFilter.EnergySelectionSlitWidth,EnergyFilterSlitWidth,,filter.energy_offset,_em_imaging_optics.energyfilter_slit_width,Float64,,,,eV,,,electron_volts ,
 ,,,,,,,,,,,,,,
 acquisition.image_size.height,MicroscopeImage.microscopeData.acquisition.camera.ReadoutArea.height,ImageDimensions_Y,,image_size[0],_em_image_scans.dimension_height,Int,,,,,,,,
 acquisition.image_size.width,MicroscopeImage.microscopeData.acquisition.camera.ReadoutArea.width,ImageDimensions_X,,image_size[1],_em_image_scans.dimension_width,Int,,,,,,,,

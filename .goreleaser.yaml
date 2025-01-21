@@ -19,7 +19,7 @@ builds:
     goos:
       - linux
       - windows
-     # - darwin
+      - darwin
     main: .
     
 
@@ -37,6 +37,8 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+    files: 
+      - tutorial/**
 
 changelog:
   sort: asc

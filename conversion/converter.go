@@ -156,11 +156,12 @@ func Convert(jsonin []byte, content embed.FS, p1Flag string, p2Flag string) ([]b
 	if p1Flag == "" && p2Flag == "" {
 		config, err := configuration.Getconfig()
 		if err != nil {
-			fmt.Println("config was not set or could not be obtained - make sure the config is set using LS_Metadata_reader --c or you are using the --param flags")
-		}
-		errun := json.Unmarshal(config, &fixvalues)
-		if errun != nil {
-			fmt.Println("The config was non readable, make sure it is properly set using the --c flag or directly hand over parameters using the --param flags")
+			fmt.Println("Warning: config was not set or could not be obtained - make sure the config is set using LS_Metadata_reader --c or you are using the flags")
+		} else {
+			errun := json.Unmarshal(config, &fixvalues)
+			if errun != nil {
+				fmt.Printf("%s", "Warning: Config was found but unreadable")
+			}
 		}
 	} else {
 		fixvalues = make(map[string]string)

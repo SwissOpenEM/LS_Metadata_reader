@@ -32,9 +32,9 @@ func main() {
 	cFlag := flag.Bool("c", false, "If you want to reset your config file")
 	oFlag := flag.String("o", "", "Provide target output path and name for your metadata file, leave empty to write to current working directory")
 	iFlag := flag.String("i", "", "Provide target input folder - will take first positional argument if --i is missing")
-	p1Flag := flag.String("param1", "", "Provide CS value here, if you dont want to use configs")
-	p2Flag := flag.String("param2", "", "Provide whether and how to flip the gain ref here, if you dont want to use configs")
-	p3Flag := flag.String("param3", "", "Provide the path to the mirrored EPU folder containing all the xmls of the datacollections here, if you dont want to use configs")
+	p1Flag := flag.String("cs", "", "Provide CS value here, if you dont want to use configs")
+	p2Flag := flag.String("gain_flip_rotate", "", "Provide whether and how to flip the gain ref here, if you dont want to use configs")
+	p3Flag := flag.String("epu", "", "Provide the path to the mirrored EPU folder containing all the xmls of the datacollections here, if you dont want to use configs")
 	flag.Parse()
 	posArgs := flag.Args()
 

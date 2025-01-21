@@ -561,7 +561,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 		var getmpc map[string]string
 		config, err := configuration.Getconfig()
 		if err != nil {
-			fmt.Println("No path config available, we suggest using either --param3 or the config to provide the path where EPU mirrors the datasets and stores xmls")
+			fmt.Println("Warning: No path config available, we suggest using either --epu or the config to provide the path where EPU mirrors the datasets and stores xmls")
 		} else {
 			errun := json.Unmarshal(config, &getmpc)
 			if errun != nil {

@@ -3,19 +3,19 @@
       "beamshift": {
          "x_max": {
             "unit": "mrad",
-            "value": -0.0160271488130093
+            "value": 0.0216683018952608
          },
          "x_min": {
             "unit": "mrad",
-            "value": -0.0263405106961727
+            "value": -0.0280547887086868
          },
          "y_max": {
             "unit": "mrad",
-            "value": 0.0382381789386272
+            "value": 0.0293445233255625
          },
          "y_min": {
             "unit": "mrad",
-            "value": 0.0075393673032522
+            "value": -0.0219683144241571
          }
       },
       "beamtilt": {
@@ -32,18 +32,18 @@
       "calibrated_defocus": {
          "maximal": {
             "unit": "nm",
-            "value": -3080.6458017
+            "value": -1970.7950646000002
          },
          "minimal": {
             "unit": "nm",
-            "value": -3080.7366167
+            "value": -1971.0250489
          }
       },
-      "date_time": "2024-09-01T06:01:10+02:00",
+      "date_time": "2024-08-31T20:05:19+02:00",
       "detector": "Falcon 4i",
       "dose_per_movie": {
          "unit": "1/Å^2",
-         "value": 4.743577335374314
+         "value": 4.398180773440143
       },
       "energy_filter": {
          "used": true,
@@ -56,12 +56,12 @@
          "unit": "s",
          "value": 0.619959
       },
-      "gainref_flip_rotate": "none",
+      "gainref_flip_rotate": "",
       "image_size": {
          "height": 4096,
          "width": 4096
       },
-      "images_generated": 2,
+      "images_generated": 10,
       "imageshift": {
          "x_max": {
             "unit": "um",
@@ -100,10 +100,6 @@
       "c2_aperture": {
          "unit": "um",
          "value": 20
-      },
-      "cs": {
-         "unit": "mm",
-         "value": 2.7
       },
       "electron_source": "FieldEmission",
       "illumination": "Parallel",
