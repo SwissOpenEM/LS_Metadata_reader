@@ -58,9 +58,9 @@ LS_Metadata_reader --c
 
 The configuration file is saved in the following locations depending on your platform:
 
-   - Unix: `$XDG_CONFIG_HOME/LS_reader.conf` (usually `$HOME/.config/LS_reader.conf`)
-   - MacOS: `$HOME/Library/Application Support/LS_reader.conf`
-   - Windows: `%AppData%\LS_reader.conf`
+   - Unix: `$XDG_CONFIG_HOME/LS_Metadata_reader/LS_reader.conf` (usually `$HOME/.config/LS_Metadata_reader/LS_reader.conf`)
+   - MacOS: `$HOME/Library/Application Support/LS_Metadata_reader/LS_reader.conf`
+   - Windows: `%AppData%\LS_Metadata_reader\LS_reader.conf`
 
 Config values can also be set using the command line flags:
 

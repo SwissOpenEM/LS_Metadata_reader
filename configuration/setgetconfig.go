@@ -16,7 +16,8 @@ func Getconfig() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	configFilePath := filepath.Join(path, "LS_Metadata_reader/LS_reader.conf")
+	destination := filepath.Join("LS_Metadata_reader", "LS_reader.conf")
+	configFilePath := filepath.Join(path, destination)
 
 	_, err1 := os.Stat(configFilePath)
 	if err1 != nil {
@@ -35,7 +36,8 @@ func Changeconfig() {
 	if err != nil {
 		fmt.Println("Couldn't reach config directory", err)
 	}
-	configFilePath := filepath.Join(path, "LS_Metadata_reader/LS_reader.conf")
+	destination := filepath.Join("LS_Metadata_reader", "LS_reader.conf")
+	configFilePath := filepath.Join(path, destination)
 	configdir := filepath.Join(path, "LS_Metadata_reader")
 	_, err1 := os.Stat(configdir)
 	if err1 != nil {
