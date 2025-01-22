@@ -41,16 +41,14 @@ func main() {
 	// allow for reconfiguration of the config
 	if *cFlag {
 		current, err := configuration.Getconfig()
+		var grid map[string]string
 		if err != nil {
 			fmt.Fprintln(os.Stderr, " No prior config obtainable", err)
 		}
-		var grid map[string]string
-		err1 := json.Unmarshal(current, &grid)
-		if err1 != nil {
-			fmt.Fprintln(os.Stderr, "Config exists but reading it failed", err)
-		}
+		_ = json.Unmarshal(current, &grid)
 		fmt.Println("current config:\n", grid)
 		configuration.Changeconfig()
+		return
 	}
 	var directory string
 	// Check that there are arguments
