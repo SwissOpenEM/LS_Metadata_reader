@@ -1,30 +1,149 @@
 # LS Metadata extractor
-simple parser for the two common life-science EM metadata output formats (.xml from EPU and .mdoc from TOMO5 and SerialEM respectively), written in go
+Extract metadata from common life-science electron microscopy data in
+[OSC-EM](https://github.com/osc-em) format.
 
-## Usage
-Chose the appropriate binary from the [Releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases), then:
-LS_Metadata_reader target_directory
+## Input formats
 
-For testing, try the associated [tutorial](https://github.com/SwissOpenEM/LS_Metadata_reader/tree/main/tutorial) folder; an example of how the output should look like is provided in the same folder (tutorial_correct.json).
+- SerialEM
+- Thermo Fisher EPU
+- TOMO5
 
-## Comments
-Runs on a directory containing raw files and their instrument written additional information files (.mdoc and .xml respectively), generates a dataset level .json file. In case of usage with EPU pointing to the top level directory is enough, it will search for the data folders and extract the info from there. Using --z you can also obtain a zip file of the xml files associated with your data collection. If you want all the metadata (dataset level, not all individual entries) written out by a given software use the --f flag, otherwise the output will be OSCEM conform. 
+## Installation
 
-## SerialEM
-SerialEM properties examples are to be added to the existing properties files of your SerialEM installation (update values to reflect your instrument parameters). The two scripts are to be run after each image collection (the lowest tick mark on the SerialEM automization script selection) with the respective name indicating when to use which of the two. Otherwise SerialEM ouput will lack a few required fields for the schema. 
+Binaries for Mac, Linux, and Windows can be downloaded from our
+[releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases) page.
+Alternately, you can compile from source by running:
+
+```sh
+go build -o LS_metadata_reader .
+```
+
+### MacOS
+
+The release executables for MacOS are not signed. You may get a warning that MacOS
+cannot verify the developer or check the binary for malicious software. If downloaded
+directly from Github this executable should be safe to run. You can bypass the warning
+by running the command:
+
+```sh
+xattr -d com.apple.quarantine LS_Metadata_reader
+```
+
+### SerialEM
+
 **!!! Requires SerialEM 4.2.0 or newer !!!**
 
-## For running with EPU directly
-Benefits from setting the config (set using LS_Metadata_reader --c), or handing over the three instrument values directly with flags: <br>
---cs <br>
---gain_flip_rotate <br>
---epu <br>
-The --cs (for the CS value of the instrument) and --gain_flip_rotate (for the orientation of the gain_reference relative to actual data) are unfortunately never provided in the metadata, and are both important for processing. It is therefore highly beneficial to set these two.
-As for --epu, EPU writes its metadata files in a different directory than its actual data (TOMO5 also keeps some additional info that is processed by the LS_Metadata_reader there). It generates another set of folders, usually on the microscope controlling computer, that mirror its OffloadData folders in directory structure. Within them it stores some related information, among which are also the metadata xml files. If --epu is defined as a flag or in the config, the LS_Metadata_reader will directly grab those when the user points it at a OffloadData directory. <br>
-NOTE: This requires you to mount the microscope computer directory for EPU on the machine you are running LS_Metadata_reader on as those are most likely NOT the same. The extractor will work regardless if pointed to the xmls/mdocs directly, this is just for convenience.
+SerialEM requires some additional configuration to ensure that all required information
+is available in the mdoc files.
 
-## Schema-Links 
+1. Add instrument properties to `SerialEMproperties.txt`. See the
+   [example](SerialEM_Scripts/SerialEMproperties_GlobalAutodocEntry_Example.txt). Update
+   values to reflect your instrument parameters.
+2. The two scripts are provided in `SerialEM_Scripts/` for SPA and Tomography datasets.
+   One of these should be run after each image collection (the lowest tick mark on the
+   SerialEM automization script selection). Otherwise SerialEM output will lack a few
+   required fields for the schema.
+
+
+### EPU and TOMO5
+
+Some instrument data is not available in EPU output. This is normally set in a
+configuration file, but can also be added at the command line using parameters.
+
+A wizard is available to walk through creating the configuration file. Run it using
+
+```sh
+LS_Metadata_reader --c
+```
+
+The configuration file is saved in the following locations depending on your platform:
+
+   - Unix: `$XDG_CONFIG_HOME/LS_reader.conf` (usually `$HOME/.config/LS_reader.conf`)
+   - MacOS: `$HOME/Library/Application Support/LS_reader.conf`
+   - Windows: `%AppData%\LS_reader.conf`
+
+Config values can also be set using the command line flags:
+
+| Config property | CLI Option | Required | Description |
+| ------------- | -------- | ---------- | --- |
+| CS  | `--cs` | yes |the CS value of the instrument
+| Gainref_FlipRotate | `--gain_flip_rotate` | yes | the orientation of the gain_reference relative to actual data
+| MPCPATH | `--epu` | | Path to EPU metadata directory
+
+EPU writes its metadata files in a different directory than its actual data (TOMO5 also
+keeps some additional info that is processed by the LS_Metadata_reader there). It
+generates another set of folders, usually on the microscope controlling computer, that
+mirror its OffloadData folders in directory structure. Within them it stores some
+related information, including the metadata xml files. If `--epu` is defined as a flag
+or in the config, the LS_Metadata_reader will directly grab those when the user points
+it at a OffloadData directory.
+*NOTE: This requires you to mount the microscope computer directory for EPU on the
+machine you are running LS_Metadata_reader on, as those are most likely NOT the same.
+The extractor will work regardless if pointed to the xmls/mdocs directly, this is just
+for convenience.*
+
+
+## Usage
+
+The reader should be called with the path to a folder containing the xml (EPU/TOMO5) or
+mdoc (SerialEM) files.
+
+```sh
+./LS_Metadata_reader -o tutorial_oscem.json tutorial/
+```
+
+For testing, try the associated [tutorial](tutorial/) folder; an example of how the
+output should look like is provided in the same folder (tutorial_correct.json). For
+first time use, disregard the warnings about config/flags those are for use directly
+with EPU or the OpenEM Ingestor.
+
+The reader runs on a directory containing the microscope's additional information files
+for each micrograph (.mdoc or .xml for SerialEM and EPU, respectively). It generates a
+JSON file following the OSC-EM schema with metadata for the whole dataset. For
+usage with EPU, pointing to the top level directory is enough; it will search for the
+data folders and extract the info from there.
+
+Using `-z` you can also obtain a zip file of the xml files associated with your data
+collection. This can be useful for archiving or for later analysis.
+
+To include additional metadata not supported by the OSC-EM schema, use the `-f` flag.
+This will include all available dataset-level metadata.
+
+
+## SciCat Ingestor integration
+
+This tool is a compatible metadata extractor for use with the [SciCat Web
+Ingestor](https://github.com/SwissOpenEM/Ingestor). It can be installed automatically by
+including the following in your ingestor configuration file:
+
+```yaml
+MetadataExtractors:
+  - Name: LS
+    GithubOrg: SwissOpenEM
+    GithubProject: LS_Metadata_reader
+    Version: v0.3.0
+    Executable: LS_Metadata_reader
+    Checksum: 805fd036f2c83284b2cd70f2e7f3fafbe17bc750d2156f604c1505f7d5791d75
+    ChecksumAlg: sha256
+    CommandLineTemplate: "-i '{{.SourceFolder}}' -o '{{.OutputFile}}'"
+    Methods:
+      - Name: Single Particle
+        Schema: oscem_schemas.schema.json
+      - Name: Cellular Tomography
+        Schema: oscem_cellular_tomo.json
+      - Name: Tomography
+        Schema: oscem_tomo.json
+      - Name: EnvironmentalTomography
+        Schema: oscem_env_tomo.json
+```
+
+This will automatically download and install the LS_Metadata_extractor with the
+specified version.
+
+## Schema
 Output is compatible to OSCEM schemas https://github.com/osc-em/OSCEM_Schemas/
 
-Specific schema used to generate standard schema conform output (works for SPA and Tomography): https://github.com/osc-em/OSCEM_Schemas/blob/linkml_yaml/src/oscem_schemas/schema/oscem_schemas_tomo.yaml 
+Specific schema used to generate standard schema conform output (works for SPA and
+Tomography):
+https://github.com/osc-em/OSCEM_Schemas/blob/linkml_yaml/src/oscem_schemas/schema/oscem_schemas_tomo.yaml
 with LinkML gen-golang
