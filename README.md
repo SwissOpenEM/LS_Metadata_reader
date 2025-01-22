@@ -15,12 +15,12 @@ SerialEM properties examples are to be added to the existing properties files of
 **!!! Requires SerialEM 4.2.0 or newer !!!**
 
 ## For running with EPU directly
-Benefits from setting the config (set using LS_Metadata_reader --c), or handing over the three instrument values directly with flags: 
---cs 
---gain_flip_rotate
---epu 
+Benefits from setting the config (set using LS_Metadata_reader --c), or handing over the three instrument values directly with flags: <br>
+--cs <br>
+--gain_flip_rotate <br>
+--epu <br>
 The --cs (for the CS value of the instrument) and --gain_flip_rotate (for the orientation of the gain_reference relative to actual data) are unfortunately never provided in the metadata, and are both important for processing. It is therefore highly beneficial to set these two.
-As for --epu, EPU writes its metadata files in a different directory than its actual data (TOMO5 also keeps some additional info that is processed by the LS_Metadata_reader there). It generates another set of folders, usually on the microscope controlling computer, that mirror its OffloadData folders in directory structure. Within them it stores some related information, among which are also the metadata xml files. If --epu is defined as a flag or in the config, the LS_Metadata_reader will directly grab those when the user points it at a OffloadData directory. 
+As for --epu, EPU writes its metadata files in a different directory than its actual data (TOMO5 also keeps some additional info that is processed by the LS_Metadata_reader there). It generates another set of folders, usually on the microscope controlling computer, that mirror its OffloadData folders in directory structure. Within them it stores some related information, among which are also the metadata xml files. If --epu is defined as a flag or in the config, the LS_Metadata_reader will directly grab those when the user points it at a OffloadData directory. <br>
 NOTE: This requires you to mount the microscope computer directory for EPU on the machine you are running LS_Metadata_reader on as those are most likely NOT the same. The extractor will work regardless if pointed to the xmls/mdocs directly, this is just for convenience.
 
 ## Schema-Links 
