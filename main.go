@@ -76,6 +76,7 @@ func main() {
 		cut := strings.Split(cwd, string(os.PathSeparator))
 		name := cut[len(cut)-1] + ".json"
 		os.WriteFile(name, output, 0644)
+		fmt.Println()
 		fmt.Println("Extracted data was written to: ", name)
 
 	} else {
@@ -86,6 +87,7 @@ func main() {
 			twd = strings.Join(conc, ".")
 		}
 		os.WriteFile(twd, output, 0644)
-		fmt.Println("Extracted data was written to: ", twd)
+		fmt.Println()
+		fmt.Printf("Extracted data was written to: %s", twd)
 	}
 }

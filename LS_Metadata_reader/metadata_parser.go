@@ -509,7 +509,7 @@ func startProgressReporter(progressTracker *ProgressTracker) {
 		progress := float64(completed) / float64(total) * 100
 		fmt.Printf("\rProgress: %.2f%%", progress)
 		if completed >= total {
-			fmt.Printf("\n")
+			fmt.Println("")
 			break
 		}
 		time.Sleep(100 * time.Millisecond)
@@ -561,11 +561,11 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 		var getmpc map[string]string
 		config, err := configuration.Getconfig()
 		if err != nil {
-			fmt.Println("Warning: No path config available, we suggest using either --epu or the config to provide the path where EPU mirrors the datasets and stores xmls")
+			fmt.Fprintln(os.Stderr, "Warning: No path config available, we suggest using either --epu or the config to provide the path where EPU mirrors the datasets and stores xmls")
 		} else {
 			errun := json.Unmarshal(config, &getmpc)
 			if errun != nil {
-				fmt.Println("Your config was unretrievable, make sure it is set and accessible or use the param flags")
+				fmt.Fprintln(os.Stderr, "Your config was unretrievable, make sure it is set and accessible or use the param flags")
 			}
 			parallel = getmpc["MPCPATH"]
 		}
@@ -576,7 +576,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 	if parallel != "" {
 		dataFolders, err = findDataFolders(parallel+target, dataFolders)
 		if err != nil {
-			fmt.Println("There should be a folder on your instrument control computer with the same name - something went wrong here", err)
+			fmt.Fprintln(os.Stderr, "There should be a folder on your instrument control computer with the same name - something went wrong here", err)
 			return nil, err
 		}
 	}

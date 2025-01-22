@@ -38,7 +38,8 @@ archives:
       - goos: windows
         format: zip
     files: 
-      - tutorial/**
+      - LICENSE
+      - README.md
 
 changelog:
   sort: asc
