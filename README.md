@@ -82,6 +82,10 @@ machine you are running LS_Metadata_reader on, as those are most likely NOT the 
 The extractor will work regardless if pointed to the xmls/mdocs directly, this is just
 for convenience.*
 
+### Suggestions
+
+Use the associated OpenEM [tool](https://github.com/SwissOpenEM/epu_dataset_merger) which will allow you to automate moving all the required metadata (and some more useful data thats in the EPUs internal folders) into your datasets. Can be automated via e.g. crontab.
+
 
 ## Usage
 
