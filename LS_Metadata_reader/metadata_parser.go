@@ -8,7 +8,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -423,14 +422,14 @@ func readin(jobs <-chan string, results chan<- interface{}, wg *sync.WaitGroup, 
 			if err == nil {
 				results <- xmlResult{filePath: filePath, content: xmlContent}
 			} else {
-				fmt.Fprintln(os.Stderr, "Import of", filePath, "failed")
+				fmt.Fprintln(os.Stderr, "Import of", filePath, "failed", err.Error())
 			}
 		case ".mdoc":
 			mdocContent, err := process_mdoc(filePath)
 			if err == nil {
 				results <- mdocResult{content: mdocContent}
 			} else {
-				fmt.Fprintln(os.Stderr, "Import of", filePath, "failed")
+				fmt.Fprintln(os.Stderr, "Import of", filePath, "failed", err.Error())
 			}
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown file type: %s\n", filePath)
@@ -519,15 +518,21 @@ func startProgressReporter(progressTracker *ProgressTracker) {
 func collectAllFiles(directories []string) ([]string, error) {
 	var allFiles []string
 	for _, dir := range directories {
-		files, err := ioutil.ReadDir(dir)
-		if err != nil {
-			return nil, err
-		}
-		for _, file := range files {
-			if !file.IsDir() && !isHidden(file.Name()) && (filepath.Ext(file.Name()) == ".xml" || filepath.Ext(file.Name()) == ".mdoc") {
-				allFiles = append(allFiles, filepath.Join(dir, file.Name()))
+		err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
 			}
+			file, err := os.Stat(path)
+			if err == nil && !file.IsDir() && !isHidden(file.Name()) && (filepath.Ext(file.Name()) == ".xml" || filepath.Ext(file.Name()) == ".mdoc") {
+				allFiles = append(allFiles, path)
+			}
+			return err
+		})
+
+		if err != nil {
+			fmt.Printf("Error collecting files in path %q: %s\n", dir, err.Error())
 		}
+
 	}
 	return allFiles, nil
 }
