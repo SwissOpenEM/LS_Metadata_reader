@@ -27,11 +27,13 @@ func TestReaderTableDriven(t *testing.T) {
 	targetMdoc := readJSONFile("./tests/mdocs_full.json")
 	targetCombine := readJSONFile("./tests/combine_full.json")
 	targetmdocspa := readJSONFile("./tests/mdocspa_full.json")
+	targetdepth := readJSONFile("./tests/depthcheck_full.json")
 	//converter
 	target2XML := readJSONFile("./tests/xml_correct.json")
 	target2Mdoc := readJSONFile("./tests/mdocs_correct.json")
 	target2Combine := readJSONFile("./tests/combine_correct.json")
 	target2mdocspa := readJSONFile("./tests/mdocspa_correct.json")
+	target2depth := readJSONFile("./tests/depthcheck_correct.json")
 
 	tests := []struct {
 		name      string
@@ -89,6 +91,18 @@ func TestReaderTableDriven(t *testing.T) {
 			wantData:  targetmdocspa,
 			wantErr:   false,
 			wantData2: target2mdocspa,
+			p1Flag:    "2.7",
+			p2Flag:    "none",
+			p3Flag:    "",
+		},
+		{
+			name:      "depthcheck",
+			directory: "./tests/depthcheck",
+			zFlag:     false,
+			fFlag:     false,
+			wantData:  targetdepth,
+			wantErr:   false,
+			wantData2: target2depth,
 			p1Flag:    "2.7",
 			p2Flag:    "none",
 			p3Flag:    "",
