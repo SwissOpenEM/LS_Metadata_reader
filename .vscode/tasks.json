@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "go",
+			"label": "build metadata reader",
+			"command": "build",
+			"args": [
+        "-tags",
+        "dev",
+        "-gcflags",
+        "all=-N -l",
+				"-o",
+        "build/bin/LS_metadata_reader"
+			],
+			"problemMatcher": [
+				"$go"
+			],
+			"group": "build",
+		}
+	]
+}
