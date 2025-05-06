@@ -36,81 +36,100 @@ func TestReaderTableDriven(t *testing.T) {
 	target2depth := readJSONFile("./tests/depthcheck_correct.json")
 
 	tests := []struct {
-		name      string
-		directory string
-		zFlag     bool
-		fFlag     bool
-		wantData  string // reader only
-		wantErr   bool
-		wantData2 string // e2e
-		p1Flag    string
-		p2Flag    string
-		p3Flag    string
+		name       string
+		directory  string
+		zFlag      bool
+		fFlag      bool
+		wantData   string // reader only
+		wantErr    bool
+		wantData2  string // e2e
+		p1Flag     string
+		p2Flag     string
+		p3Flag     string
+		folderFlag string
 	}{
 		{
-			name:      "xmls",
-			directory: "./tests/xml",
-			zFlag:     false,
-			fFlag:     false,
-			wantData:  targetXML,
-			wantErr:   false,
-			wantData2: target2XML,
-			p1Flag:    "2.7",
-			p2Flag:    "none",
-			p3Flag:    "",
+			name:       "xmls",
+			directory:  "./tests/xml",
+			zFlag:      false,
+			fFlag:      false,
+			wantData:   targetXML,
+			wantErr:    false,
+			wantData2:  target2XML,
+			p1Flag:     "2.7",
+			p2Flag:     "none",
+			p3Flag:     "",
+			folderFlag: "",
 		},
 		{
-			name:      "mdocs",
-			directory: "./tests/mdocs",
-			zFlag:     false,
-			fFlag:     false,
-			wantData:  targetMdoc,
-			wantErr:   false,
-			wantData2: target2Mdoc,
-			p1Flag:    "2.7",
-			p2Flag:    "none",
-			p3Flag:    "",
+			name:       "mdocs",
+			directory:  "./tests/mdocs",
+			zFlag:      false,
+			fFlag:      false,
+			wantData:   targetMdoc,
+			wantErr:    false,
+			wantData2:  target2Mdoc,
+			p1Flag:     "2.7",
+			p2Flag:     "none",
+			p3Flag:     "",
+			folderFlag: "",
 		},
 		{
-			name:      "Both",
-			directory: "./tests/combine",
-			zFlag:     false,
-			fFlag:     false,
-			wantData:  targetCombine,
-			wantErr:   false,
-			wantData2: target2Combine,
-			p1Flag:    "2.7",
-			p2Flag:    "none",
-			p3Flag:    "",
+			name:       "Both",
+			directory:  "./tests/combine",
+			zFlag:      false,
+			fFlag:      false,
+			wantData:   targetCombine,
+			wantErr:    false,
+			wantData2:  target2Combine,
+			p1Flag:     "2.7",
+			p2Flag:     "none",
+			p3Flag:     "",
+			folderFlag: "",
 		},
 		{
-			name:      "mdocspa",
-			directory: "./tests/mdocspa",
-			zFlag:     false,
-			fFlag:     false,
-			wantData:  targetmdocspa,
-			wantErr:   false,
-			wantData2: target2mdocspa,
-			p1Flag:    "2.7",
-			p2Flag:    "none",
-			p3Flag:    "",
+			name:       "mdocspa",
+			directory:  "./tests/mdocspa",
+			zFlag:      false,
+			fFlag:      false,
+			wantData:   targetmdocspa,
+			wantErr:    false,
+			wantData2:  target2mdocspa,
+			p1Flag:     "2.7",
+			p2Flag:     "none",
+			p3Flag:     "",
+			folderFlag: "",
 		},
 		{
-			name:      "depthcheck",
-			directory: "./tests/depthcheck",
-			zFlag:     false,
-			fFlag:     false,
-			wantData:  targetdepth,
-			wantErr:   false,
-			wantData2: target2depth,
-			p1Flag:    "2.7",
-			p2Flag:    "none",
-			p3Flag:    "",
+			name:       "depthcheck",
+			directory:  "./tests/depthcheck",
+			zFlag:      false,
+			fFlag:      false,
+			wantData:   targetdepth,
+			wantErr:    false,
+			wantData2:  target2depth,
+			p1Flag:     "2.7",
+			p2Flag:     "none",
+			p3Flag:     "",
+			folderFlag: "",
+		},
+		{
+			name:       "folderFlag",
+			directory:  "./tests/empty",
+			zFlag:      false,
+			fFlag:      false,
+			wantData:   targetXML,
+			wantErr:    false,
+			wantData2:  target2XML,
+			p1Flag:     "2.7",
+			p2Flag:     "none",
+			p3Flag:     "",
+			folderFlag: "myfoldername",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			data, err := LS_Metadata_reader.Reader(tt.directory, tt.zFlag, tt.fFlag, tt.p3Flag)
+			data, err := LS_Metadata_reader.Reader(tt.directory, tt.zFlag, tt.fFlag, tt.p3Flag, tt.folderFlag)
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Reader() error = %v, wantErr %v", err, tt.wantErr)

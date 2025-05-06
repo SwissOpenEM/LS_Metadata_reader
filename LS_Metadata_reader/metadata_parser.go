@@ -475,7 +475,7 @@ func addFileToZip(writer *zip.Writer, file string) error {
 	return nil
 }
 
-func findDataFolders(inputDir string, dataFolders []string) ([]string, error) {
+func findDataFolders(inputDir string, dataFolders []string, folderFlag string) ([]string, error) {
 
 	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -484,6 +484,8 @@ func findDataFolders(inputDir string, dataFolders []string) ([]string, error) {
 		if info.IsDir() && info.Name() == "Data" {
 			dataFolders = append(dataFolders, path)
 		} else if info.IsDir() && info.Name() == "Batch" {
+			dataFolders = append(dataFolders, path)
+		} else if folderFlag != "" && info.IsDir() && info.Name() == folderFlag {
 			dataFolders = append(dataFolders, path)
 		}
 		return nil
@@ -532,7 +534,7 @@ func collectAllFiles(directories []string) ([]string, error) {
 	return allFiles, nil
 }
 
-func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, error) {
+func Reader(directory string, zFlag bool, fFlag bool, p3Flag string, folderFlag string) ([]byte, error) {
 
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(directory)
@@ -551,7 +553,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 	correct := strings.Split(directory_safe, string(filepath.Separator))
 	target := correct[len(correct)-1]
 	var dataFolders []string
-	dataFolders, err = findDataFolders(directory, dataFolders)
+	dataFolders, err = findDataFolders(directory, dataFolders, folderFlag)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Folder search failed - is this the correct directory?", err)
 		return nil, err
@@ -574,7 +576,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string) ([]byte, er
 	}
 
 	if parallel != "" {
-		dataFolders, err = findDataFolders(parallel+target, dataFolders)
+		dataFolders, err = findDataFolders(parallel+target, dataFolders, folderFlag)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "There should be a folder on your instrument control computer with the same name - something went wrong here", err)
 			return nil, err

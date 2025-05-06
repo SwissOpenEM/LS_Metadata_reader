@@ -113,6 +113,10 @@ collection. This can be useful for archiving or for later analysis.
 To include additional metadata not supported by the OSC-EM schema, use the `-f` flag.
 This will include all available dataset-level metadata.
 
+Using the --folder flag you can add a custom folder name that contains your xmls/mdocs 
+(no further nesting!). This is mainly meant for cases where local facilities deviate
+from TFS folder structures when making data available to users.
+
 
 ## SciCat Ingestor integration
 
