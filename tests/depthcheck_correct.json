@@ -2,19 +2,19 @@
    "acquisition": {
       "beamshift": {
          "x_max": {
-            "unit": "mrad",
+            "unit": "um",
             "value": -0.0040279249660671
          },
          "x_min": {
-            "unit": "mrad",
+            "unit": "um",
             "value": -0.0151508497074246
          },
          "y_max": {
-            "unit": "mrad",
+            "unit": "um",
             "value": -0.006630904506892
          },
          "y_min": {
-            "unit": "mrad",
+            "unit": "um",
             "value": -0.0163530632853508
          }
       },
