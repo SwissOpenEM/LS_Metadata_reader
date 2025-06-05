@@ -2,17 +2,14 @@ package main_test
 
 import (
 	"LS_reader/LS_Metadata_reader"
-	"LS_reader/conversion"
-	"embed"
 	"encoding/json"
 	"os"
 	"testing"
 
+	conversion "github.com/osc-em/Converter"
+
 	"github.com/stretchr/testify/assert"
 )
-
-//go:embed conversion/conversions.csv
-var embedded embed.FS
 
 func TestReaderTableDriven(t *testing.T) {
 	readJSONFile := func(filepath string) string {
@@ -47,6 +44,7 @@ func TestReaderTableDriven(t *testing.T) {
 		p2Flag     string
 		p3Flag     string
 		folderFlag string
+		outF       bool
 	}{
 		{
 			name:       "xmls",
@@ -60,6 +58,7 @@ func TestReaderTableDriven(t *testing.T) {
 			p2Flag:     "none",
 			p3Flag:     "",
 			folderFlag: "",
+			outF:       false,
 		},
 		{
 			name:       "mdocs",
@@ -73,6 +72,7 @@ func TestReaderTableDriven(t *testing.T) {
 			p2Flag:     "none",
 			p3Flag:     "",
 			folderFlag: "",
+			outF:       false,
 		},
 		{
 			name:       "Both",
@@ -86,6 +86,7 @@ func TestReaderTableDriven(t *testing.T) {
 			p2Flag:     "none",
 			p3Flag:     "",
 			folderFlag: "",
+			outF:       false,
 		},
 		{
 			name:       "mdocspa",
@@ -99,6 +100,7 @@ func TestReaderTableDriven(t *testing.T) {
 			p2Flag:     "none",
 			p3Flag:     "",
 			folderFlag: "",
+			outF:       false,
 		},
 		{
 			name:       "depthcheck",
@@ -112,6 +114,7 @@ func TestReaderTableDriven(t *testing.T) {
 			p2Flag:     "none",
 			p3Flag:     "",
 			folderFlag: "",
+			outF:       false,
 		},
 		{
 			name:       "folderFlag",
@@ -125,6 +128,7 @@ func TestReaderTableDriven(t *testing.T) {
 			p2Flag:     "none",
 			p3Flag:     "",
 			folderFlag: "myfoldername",
+			outF:       false,
 		},
 	}
 	for _, tt := range tests {
@@ -157,7 +161,7 @@ func TestReaderTableDriven(t *testing.T) {
 			}
 			assert.JSONEqf(t, string(targetDataBytes), string(actualDataBytes), "Mismatch in test case %s", tt.name)
 
-			data2, err2 := conversion.Convert(data, embedded, tt.p1Flag, tt.p2Flag)
+			data2, err2 := conversion.Convert(data, "", tt.p1Flag, tt.p2Flag, tt.folderFlag)
 
 			if (err2 != nil) != tt.wantErr {
 				t.Fatalf("Reader() error = %v, wantErr %v", err2, tt.wantErr)

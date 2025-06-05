@@ -3,17 +3,13 @@ package main
 import (
 	"LS_reader/LS_Metadata_reader"
 	"LS_reader/configuration"
-	"LS_reader/conversion"
-	"embed"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"strings"
-)
 
-//go:embed conversion/conversions.csv
-var content embed.FS
+	conversion "github.com/osc-em/Converter"
+)
 
 func main() {
 	//for benchmarking
@@ -36,6 +32,7 @@ func main() {
 	p2Flag := flag.String("gain_flip_rotate", "", "Provide whether and how to flip the gain ref here, if you dont want to use configs")
 	p3Flag := flag.String("epu", "", "Provide the path to the mirrored EPU folder containing all the xmls of the datacollections here, if you dont want to use configs")
 	folderFlag := flag.String("folder", "", "If your system deviates from standard EPU naming conventions you can provide a folder name where your metadata files are stored here.")
+	outF := flag.Bool("cli_out", false, "If you want the results also as a stdout")
 	flag.Parse()
 	posArgs := flag.Args()
 
@@ -62,31 +59,24 @@ func main() {
 		directory = posArgs[0]
 	}
 
+	current, err := configuration.Getconfig()
+	var grid map[string]string
+	if err == nil && *p1Flag == "" && *p2Flag == "" && *p3Flag == "" {
+		_ = json.Unmarshal(current, &grid)
+		*p1Flag = grid["cs"]
+		*p2Flag = grid["gainref_flip_rotate"]
+		*p3Flag = grid["MPCPATH"]
+	}
+
 	data, err := LS_Metadata_reader.Reader(directory, *zFlag, *fFlag, *p3Flag, *folderFlag)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err)
 	}
-	output, err1 := conversion.Convert(data, content, *p1Flag, *p2Flag)
+	out, err1 := conversion.Convert(data, "", *p1Flag, *p2Flag, *oFlag)
 	if err1 != nil {
 		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err1)
 	}
-	if *oFlag == "" {
-		cwd, _ := os.Getwd()
-		cut := strings.Split(cwd, string(os.PathSeparator))
-		name := cut[len(cut)-1] + ".json"
-		os.WriteFile(name, output, 0644)
-		fmt.Println()
-		fmt.Println("Extracted data was written to: ", name)
-
-	} else {
-		twd := *oFlag
-		if !strings.Contains(twd, ".json") {
-			var conc []string
-			conc = append(conc, twd, "json")
-			twd = strings.Join(conc, ".")
-		}
-		os.WriteFile(twd, output, 0644)
-		fmt.Println()
-		fmt.Printf("Extracted data was written to: %s", twd)
+	if *outF {
+		fmt.Printf(string(out))
 	}
 }
