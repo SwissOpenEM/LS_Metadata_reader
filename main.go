@@ -71,12 +71,14 @@ func main() {
 	data, err := LS_Metadata_reader.Reader(directory, *zFlag, *fFlag, *p3Flag, *folderFlag)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err)
+		os.Exit(1)
 	}
 	out, err1 := conversion.Convert(data, "", *p1Flag, *p2Flag, *oFlag)
 	if err1 != nil {
 		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err1)
+		os.Exit(1)
 	}
 	if *outF {
-		fmt.Printf(string(out))
+		fmt.Printf("%s", string(out))
 	}
 }
