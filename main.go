@@ -32,7 +32,7 @@ func main() {
 	p1Flag := flag.String("cs", "", "Provide CS value here, if you dont want to use configs")
 	p2Flag := flag.String("gain_flip_rotate", "", "Provide whether and how to flip the gain ref here, if you dont want to use configs")
 	p3Flag := flag.String("epu", "", "Provide the path to the mirrored EPU folder containing all the xmls of the datacollections here, if you dont want to use configs")
-	folderFlag := flag.String("folder", "", "If your system deviates from standard EPU naming conventions you can provide a folder name where your metadata files are stored here.")
+	metadataFolder := flag.String("folder_filter", "", "If the system deviates from standard EPU naming conventions, a regex for the folder name with the metadata files can be provided.")
 	outF := flag.Bool("cli_out", false, "If you want the results also as a stdout")
 	flag.Parse()
 	posArgs := flag.Args()
@@ -69,7 +69,7 @@ func main() {
 		*p3Flag = grid["MPCPATH"]
 	}
 
-	data, err := LS_Metadata_reader.Reader(directory, *zFlag, *fFlag, *p3Flag, *folderFlag)
+	data, err := LS_Metadata_reader.Reader(directory, *zFlag, *fFlag, *p3Flag, *metadataFolder)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err)
 		os.Exit(1)
