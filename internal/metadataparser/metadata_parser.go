@@ -1,14 +1,12 @@
-package LS_Metadata_reader
+package metadataparser
 
 import (
-	"LS_reader/configuration"
 	"archive/zip"
 	"bufio"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -18,6 +16,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/SwissOpenEM/LS_Metadata_reader/internal/configuration"
 
 	"golang.org/x/exp/mmap"
 )
@@ -477,17 +477,23 @@ func addFileToZip(writer *zip.Writer, file string) error {
 
 func findDataFolders(inputDir string, dataFolders []string, folderFlag string) ([]string, error) {
 
+	foldersRegex := "Data|Batch"
+	if folderFlag != "" {
+		foldersRegex = foldersRegex + "|" + folderFlag
+	}
+	foldersRegexCompiled, _ := regexp.Compile(foldersRegex)
 	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() && info.Name() == "Data" {
-			dataFolders = append(dataFolders, path)
-		} else if info.IsDir() && info.Name() == "Batch" {
-			dataFolders = append(dataFolders, path)
-		} else if folderFlag != "" && info.IsDir() && info.Name() == folderFlag {
+		if !info.IsDir() {
+			return nil
+		}
+
+		if foldersRegexCompiled.MatchString(info.Name()) {
 			dataFolders = append(dataFolders, path)
 		}
+
 		return nil
 	})
 
@@ -521,7 +527,7 @@ func startProgressReporter(progressTracker *ProgressTracker) {
 func collectAllFiles(directories []string) ([]string, error) {
 	var allFiles []string
 	for _, dir := range directories {
-		files, err := ioutil.ReadDir(dir)
+		files, err := os.ReadDir(dir)
 		if err != nil {
 			return nil, err
 		}
@@ -534,32 +540,32 @@ func collectAllFiles(directories []string) ([]string, error) {
 	return allFiles, nil
 }
 
-func Reader(directory string, zFlag bool, fFlag bool, p3Flag string, folderFlag string) ([]byte, error) {
+func ReadMetadata(topLevelDirectory string, create_zip bool, write_full_metadata bool, epu_folder string, metadataFolderRegex string) ([]byte, error) {
 
 	// Check if the provided directory exists
-	fileInfo, err := os.Stat(directory)
+	fileInfo, err := os.Stat(topLevelDirectory)
 	if os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "Error: Directory '%s' does not exist.\n", directory)
+		fmt.Fprintf(os.Stderr, "Error: Directory '%s' does not exist.\n", topLevelDirectory)
 		return nil, err
 	}
 
 	// Check if the provided path is a directory
 	if !fileInfo.IsDir() {
-		fmt.Fprintf(os.Stderr, "Error: '%s' is not a directory.\n", directory)
+		fmt.Fprintf(os.Stderr, "Error: '%s' is not a directory.\n", topLevelDirectory)
 		return nil, err
 	}
 	// this part is to make sure there is no confusion on the instrument computer search when running on the Athena server folder with "./"
-	directory_safe, _ := filepath.Abs(directory)
+	directory_safe, _ := filepath.Abs(topLevelDirectory)
 	correct := strings.Split(directory_safe, string(filepath.Separator))
 	target := correct[len(correct)-1]
 	var dataFolders []string
-	dataFolders, err = findDataFolders(directory, dataFolders, folderFlag)
+	dataFolders, err = findDataFolders(topLevelDirectory, dataFolders, metadataFolderRegex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Folder search failed - is this the correct directory?", err)
 		return nil, err
 	}
 	var parallel string
-	if p3Flag == "" {
+	if epu_folder == "" {
 		var getmpc map[string]string
 		config, err := configuration.Getconfig()
 		if err != nil {
@@ -572,17 +578,17 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string, folderFlag 
 			parallel = getmpc["MPCPATH"]
 		}
 	} else {
-		parallel = p3Flag
+		parallel = epu_folder
 	}
 
 	if parallel != "" {
-		dataFolders, err = findDataFolders(parallel+target, dataFolders, folderFlag)
+		dataFolders, err = findDataFolders(parallel+target, dataFolders, metadataFolderRegex)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "There should be a folder on your instrument control computer with the same name - something went wrong here", err)
 			return nil, err
 		}
 	}
-	dataFolders = append(dataFolders, directory)
+	dataFolders = append(dataFolders, topLevelDirectory)
 	progress := &ProgressTracker{}
 
 	allfiles, err := collectAllFiles(dataFolders)
@@ -623,7 +629,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string, folderFlag 
 		}
 	}
 	// whether to generate zip of xmls
-	if zFlag && listxml != nil {
+	if create_zip && listxml != nil {
 		zipFiles(listxml)
 	}
 
@@ -655,7 +661,7 @@ func Reader(directory string, zFlag bool, fFlag bool, p3Flag string, folderFlag 
 		fmt.Fprintln(os.Stderr, "Name generation failed, returning to default")
 		nameout = "Dataset_out.json"
 	}
-	if fFlag {
+	if write_full_metadata {
 		err = os.WriteFile(nameout, jsonData, 0644)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error writing JSON to file:", err)
