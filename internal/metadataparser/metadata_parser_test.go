@@ -33,107 +33,121 @@ func TestReaderTableDriven(t *testing.T) {
 	target2depth := readJSONFile(testsFolder + "/depthcheck_correct.json")
 
 	tests := []struct {
-		name       string
-		directory  string
-		zFlag      bool
-		fFlag      bool
-		wantData   string // reader only
-		wantErr    bool
-		wantData2  string // e2e
-		p1Flag     string
-		p2Flag     string
-		p3Flag     string
-		folderFlag string
-		outF       bool
+		name                string
+		directory           string
+		create_zip          bool
+		write_full_metadata bool
+		wantData            string // reader only
+		wantErr             bool
+		wantData2           string // e2e
+		cs_value            string
+		gain_flip_rotate    string
+		epu_folder          string
+		metadataFolder      string
+		print_to_stdout     bool
 	}{
 		{
-			name:       "xmls",
-			directory:  testsFolder + "/xml",
-			zFlag:      false,
-			fFlag:      false,
-			wantData:   targetXML,
-			wantErr:    false,
-			wantData2:  target2XML,
-			p1Flag:     "2.7",
-			p2Flag:     "none",
-			p3Flag:     "",
-			folderFlag: "",
-			outF:       false,
+			name:                "xmls",
+			directory:           testsFolder + "/xml",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetXML,
+			wantErr:             false,
+			wantData2:           target2XML,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "",
+			print_to_stdout:     false,
 		},
 		{
-			name:       "mdocs",
-			directory:  testsFolder + "/mdocs",
-			zFlag:      false,
-			fFlag:      false,
-			wantData:   targetMdoc,
-			wantErr:    false,
-			wantData2:  target2Mdoc,
-			p1Flag:     "2.7",
-			p2Flag:     "none",
-			p3Flag:     "",
-			folderFlag: "",
-			outF:       false,
+			name:                "mdocs",
+			directory:           testsFolder + "/mdocs",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetMdoc,
+			wantErr:             false,
+			wantData2:           target2Mdoc,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "",
+			print_to_stdout:     false,
 		},
 		{
-			name:       "Both",
-			directory:  testsFolder + "/combine",
-			zFlag:      false,
-			fFlag:      false,
-			wantData:   targetCombine,
-			wantErr:    false,
-			wantData2:  target2Combine,
-			p1Flag:     "2.7",
-			p2Flag:     "none",
-			p3Flag:     "",
-			folderFlag: "",
-			outF:       false,
+			name:                "Both",
+			directory:           testsFolder + "/combine",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetCombine,
+			wantErr:             false,
+			wantData2:           target2Combine,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "",
+			print_to_stdout:     false,
 		},
 		{
-			name:       "mdocspa",
-			directory:  testsFolder + "/mdocspa",
-			zFlag:      false,
-			fFlag:      false,
-			wantData:   targetmdocspa,
-			wantErr:    false,
-			wantData2:  target2mdocspa,
-			p1Flag:     "2.7",
-			p2Flag:     "none",
-			p3Flag:     "",
-			folderFlag: "",
-			outF:       false,
+			name:                "mdocspa",
+			directory:           testsFolder + "/mdocspa",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetmdocspa,
+			wantErr:             false,
+			wantData2:           target2mdocspa,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "",
+			print_to_stdout:     false,
 		},
 		{
-			name:       "depthcheck",
-			directory:  testsFolder + "/depthcheck",
-			zFlag:      false,
-			fFlag:      false,
-			wantData:   targetdepth,
-			wantErr:    false,
-			wantData2:  target2depth,
-			p1Flag:     "2.7",
-			p2Flag:     "none",
-			p3Flag:     "",
-			folderFlag: "",
-			outF:       false,
+			name:                "depthcheck",
+			directory:           testsFolder + "/depthcheck",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetdepth,
+			wantErr:             false,
+			wantData2:           target2depth,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "",
+			print_to_stdout:     false,
 		},
 		{
-			name:       "folderFlag",
-			directory:  testsFolder + "/empty",
-			zFlag:      false,
-			fFlag:      false,
-			wantData:   targetXML,
-			wantErr:    false,
-			wantData2:  target2XML,
-			p1Flag:     "2.7",
-			p2Flag:     "none",
-			p3Flag:     "",
-			folderFlag: "myfoldername",
-			outF:       false,
+			name:                "folderFlag",
+			directory:           testsFolder + "/empty",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetXML,
+			wantErr:             false,
+			wantData2:           target2XML,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "myfoldername",
+			print_to_stdout:     false,
+		},
+		{
+			name:                "folderFlag",
+			directory:           testsFolder + "/empty",
+			create_zip:          false,
+			write_full_metadata: false,
+			wantData:            targetXML,
+			wantErr:             false,
+			wantData2:           target2XML,
+			cs_value:            "2.7",
+			gain_flip_rotate:    "none",
+			epu_folder:          "",
+			metadataFolder:      "^m.+foldername$",
+			print_to_stdout:     false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			data, err := Reader(tt.directory, tt.zFlag, tt.fFlag, tt.p3Flag, tt.folderFlag)
+			data, err := ReadMetadata(tt.directory, tt.create_zip, tt.write_full_metadata, tt.epu_folder, tt.metadataFolder)
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Reader() error = %v, wantErr %v", err, tt.wantErr)
@@ -161,7 +175,7 @@ func TestReaderTableDriven(t *testing.T) {
 			}
 			assert.JSONEqf(t, string(targetDataBytes), string(actualDataBytes), "Mismatch in test case %s", tt.name)
 
-			data2, err2 := conversion.Convert(data, "", tt.p1Flag, tt.p2Flag, tt.folderFlag)
+			data2, err2 := conversion.Convert(data, "", tt.cs_value, tt.gain_flip_rotate, tt.metadataFolder)
 
 			if (err2 != nil) != tt.wantErr {
 				t.Fatalf("Reader() error = %v, wantErr %v", err2, tt.wantErr)
