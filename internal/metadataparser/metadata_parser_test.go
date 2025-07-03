@@ -1,7 +1,6 @@
-package main_test
+package metadataparser
 
 import (
-	"LS_reader/LS_Metadata_reader"
 	"encoding/json"
 	"os"
 	"testing"
@@ -19,18 +18,19 @@ func TestReaderTableDriven(t *testing.T) {
 		}
 		return string(data)
 	}
+	testsFolder := "../../tests"
 	//reader
-	targetXML := readJSONFile("./tests/xml_full.json")
-	targetMdoc := readJSONFile("./tests/mdocs_full.json")
-	targetCombine := readJSONFile("./tests/combine_full.json")
-	targetmdocspa := readJSONFile("./tests/mdocspa_full.json")
-	targetdepth := readJSONFile("./tests/depthcheck_full.json")
+	targetXML := readJSONFile(testsFolder + "/xml_full.json")
+	targetMdoc := readJSONFile(testsFolder + "/mdocs_full.json")
+	targetCombine := readJSONFile(testsFolder + "/combine_full.json")
+	targetmdocspa := readJSONFile(testsFolder + "/mdocspa_full.json")
+	targetdepth := readJSONFile(testsFolder + "/depthcheck_full.json")
 	//converter
-	target2XML := readJSONFile("./tests/xml_correct.json")
-	target2Mdoc := readJSONFile("./tests/mdocs_correct.json")
-	target2Combine := readJSONFile("./tests/combine_correct.json")
-	target2mdocspa := readJSONFile("./tests/mdocspa_correct.json")
-	target2depth := readJSONFile("./tests/depthcheck_correct.json")
+	target2XML := readJSONFile(testsFolder + "/xml_correct.json")
+	target2Mdoc := readJSONFile(testsFolder + "/mdocs_correct.json")
+	target2Combine := readJSONFile(testsFolder + "/combine_correct.json")
+	target2mdocspa := readJSONFile(testsFolder + "/mdocspa_correct.json")
+	target2depth := readJSONFile(testsFolder + "/depthcheck_correct.json")
 
 	tests := []struct {
 		name       string
@@ -48,7 +48,7 @@ func TestReaderTableDriven(t *testing.T) {
 	}{
 		{
 			name:       "xmls",
-			directory:  "./tests/xml",
+			directory:  testsFolder + "/xml",
 			zFlag:      false,
 			fFlag:      false,
 			wantData:   targetXML,
@@ -62,7 +62,7 @@ func TestReaderTableDriven(t *testing.T) {
 		},
 		{
 			name:       "mdocs",
-			directory:  "./tests/mdocs",
+			directory:  testsFolder + "/mdocs",
 			zFlag:      false,
 			fFlag:      false,
 			wantData:   targetMdoc,
@@ -76,7 +76,7 @@ func TestReaderTableDriven(t *testing.T) {
 		},
 		{
 			name:       "Both",
-			directory:  "./tests/combine",
+			directory:  testsFolder + "/combine",
 			zFlag:      false,
 			fFlag:      false,
 			wantData:   targetCombine,
@@ -90,7 +90,7 @@ func TestReaderTableDriven(t *testing.T) {
 		},
 		{
 			name:       "mdocspa",
-			directory:  "./tests/mdocspa",
+			directory:  testsFolder + "/mdocspa",
 			zFlag:      false,
 			fFlag:      false,
 			wantData:   targetmdocspa,
@@ -104,7 +104,7 @@ func TestReaderTableDriven(t *testing.T) {
 		},
 		{
 			name:       "depthcheck",
-			directory:  "./tests/depthcheck",
+			directory:  testsFolder + "/depthcheck",
 			zFlag:      false,
 			fFlag:      false,
 			wantData:   targetdepth,
@@ -118,7 +118,7 @@ func TestReaderTableDriven(t *testing.T) {
 		},
 		{
 			name:       "folderFlag",
-			directory:  "./tests/empty",
+			directory:  testsFolder + "/empty",
 			zFlag:      false,
 			fFlag:      false,
 			wantData:   targetXML,
@@ -133,7 +133,7 @@ func TestReaderTableDriven(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			data, err := LS_Metadata_reader.Reader(tt.directory, tt.zFlag, tt.fFlag, tt.p3Flag, tt.folderFlag)
+			data, err := Reader(tt.directory, tt.zFlag, tt.fFlag, tt.p3Flag, tt.folderFlag)
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Reader() error = %v, wantErr %v", err, tt.wantErr)

@@ -1,14 +1,12 @@
-package LS_Metadata_reader
+package metadataparser
 
 import (
-	"LS_reader/configuration"
 	"archive/zip"
 	"bufio"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -18,6 +16,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/SwissOpenEM/LS_Metadata_reader/internal/configuration"
 
 	"golang.org/x/exp/mmap"
 )
@@ -527,7 +527,7 @@ func startProgressReporter(progressTracker *ProgressTracker) {
 func collectAllFiles(directories []string) ([]string, error) {
 	var allFiles []string
 	for _, dir := range directories {
-		files, err := ioutil.ReadDir(dir)
+		files, err := os.ReadDir(dir)
 		if err != nil {
 			return nil, err
 		}
@@ -540,7 +540,7 @@ func collectAllFiles(directories []string) ([]string, error) {
 	return allFiles, nil
 }
 
-func Reader(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag string, metadataFolderRegex string) ([]byte, error) {
+func ReadMetadata(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag string, metadataFolderRegex string) ([]byte, error) {
 
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(topLevelDirectory)

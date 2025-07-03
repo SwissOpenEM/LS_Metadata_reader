@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/SwissOpenEM/LS_Metadata_reader/LS_Metadata_reader"
-	"github.com/SwissOpenEM/LS_Metadata_reader/configuration"
+	"github.com/SwissOpenEM/LS_Metadata_reader/internal/configuration"
+	"github.com/SwissOpenEM/LS_Metadata_reader/internal/metadataparser"
 
 	conversion "github.com/osc-em/Converter"
 )
@@ -69,7 +69,7 @@ func main() {
 		*epu_folder = grid["MPCPATH"]
 	}
 
-	data, err := LS_Metadata_reader.Reader(directory, *create_zip, *write_full_metadata, *epu_folder, *metadataFolder)
+	data, err := metadataparser.ReadMetadata(directory, *create_zip, *write_full_metadata, *epu_folder, *metadataFolder)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "The extraction went wrong due to", err)
 		os.Exit(1)

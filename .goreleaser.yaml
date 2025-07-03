@@ -20,7 +20,7 @@ builds:
       - linux
       - windows
       - darwin
-    main: .
+    main: ./cmd/LS_Metadata_reader/
     
 
 archives:
