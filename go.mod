@@ -1,4 +1,4 @@
-module LS_reader
+module github.com/SwissOpenEM/LS_Metadata_reader
 
 go 1.23.0
 

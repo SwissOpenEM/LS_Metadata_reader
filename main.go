@@ -1,12 +1,13 @@
 package main
 
 import (
-	"LS_reader/LS_Metadata_reader"
-	"LS_reader/configuration"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/SwissOpenEM/LS_Metadata_reader/LS_Metadata_reader"
+	"github.com/SwissOpenEM/LS_Metadata_reader/configuration"
 
 	conversion "github.com/osc-em/Converter"
 )
