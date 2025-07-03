@@ -117,7 +117,7 @@ func TestReaderTableDriven(t *testing.T) {
 			print_to_stdout:     false,
 		},
 		{
-			name:                "folderFlag",
+			name:                "metadataFolder",
 			directory:           testsFolder + "/empty",
 			create_zip:          false,
 			write_full_metadata: false,
@@ -131,7 +131,7 @@ func TestReaderTableDriven(t *testing.T) {
 			print_to_stdout:     false,
 		},
 		{
-			name:                "folderFlag",
+			name:                "metadataFolderRegex",
 			directory:           testsFolder + "/empty",
 			create_zip:          false,
 			write_full_metadata: false,
@@ -173,9 +173,12 @@ func TestReaderTableDriven(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to re-marshal returned data: %v", err)
 			}
+
 			assert.JSONEqf(t, string(targetDataBytes), string(actualDataBytes), "Mismatch in test case %s", tt.name)
 
-			data2, err2 := conversion.Convert(data, "", tt.cs_value, tt.gain_flip_rotate, tt.metadataFolder)
+			outputFilePath := os.TempDir() + "/" + tt.name
+
+			data2, err2 := conversion.Convert(data, "", tt.cs_value, tt.gain_flip_rotate, outputFilePath)
 
 			if (err2 != nil) != tt.wantErr {
 				t.Fatalf("Reader() error = %v, wantErr %v", err2, tt.wantErr)

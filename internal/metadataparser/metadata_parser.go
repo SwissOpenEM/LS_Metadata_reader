@@ -540,7 +540,7 @@ func collectAllFiles(directories []string) ([]string, error) {
 	return allFiles, nil
 }
 
-func ReadMetadata(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag string, metadataFolderRegex string) ([]byte, error) {
+func ReadMetadata(topLevelDirectory string, create_zip bool, write_full_metadata bool, epu_folder string, metadataFolderRegex string) ([]byte, error) {
 
 	// Check if the provided directory exists
 	fileInfo, err := os.Stat(topLevelDirectory)
@@ -565,7 +565,7 @@ func ReadMetadata(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag strin
 		return nil, err
 	}
 	var parallel string
-	if p3Flag == "" {
+	if epu_folder == "" {
 		var getmpc map[string]string
 		config, err := configuration.Getconfig()
 		if err != nil {
@@ -578,7 +578,7 @@ func ReadMetadata(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag strin
 			parallel = getmpc["MPCPATH"]
 		}
 	} else {
-		parallel = p3Flag
+		parallel = epu_folder
 	}
 
 	if parallel != "" {
@@ -629,7 +629,7 @@ func ReadMetadata(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag strin
 		}
 	}
 	// whether to generate zip of xmls
-	if zFlag && listxml != nil {
+	if create_zip && listxml != nil {
 		zipFiles(listxml)
 	}
 
@@ -661,7 +661,7 @@ func ReadMetadata(topLevelDirectory string, zFlag bool, fFlag bool, p3Flag strin
 		fmt.Fprintln(os.Stderr, "Name generation failed, returning to default")
 		nameout = "Dataset_out.json"
 	}
-	if fFlag {
+	if write_full_metadata {
 		err = os.WriteFile(nameout, jsonData, 0644)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error writing JSON to file:", err)
