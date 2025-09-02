@@ -28,7 +28,10 @@
             "value": 0.00539917079731822
          }
       },
-      "binning_camera": 1,
+      "binning_camera": {
+         "height": 1,
+         "width": 1
+      },
       "calibrated_defocus": {
          "maximal": {
             "unit": "nm",
@@ -40,7 +43,6 @@
          }
       },
       "date_time": "2023-05-03T13:59:32Z",
-      "detector": "",
       "dose_per_movie": {
          "unit": "1/Å^2",
          "value": 3.08367
@@ -133,6 +135,8 @@
       "electron_source": "FieldEmission",
       "illumination": "Parallel",
       "imaging": "BrightField",
-      "microscope": "TITAN52339260"
+      "microscope": {
+         "model": "TITAN52339260"
+      }
    }
 }
