@@ -6,7 +6,7 @@ go 1.23.0
 
 require (
 	github.com/osc-em/Converter v1.0.3
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6
 )
 
