@@ -1,4 +1,5 @@
 # LS Metadata extractor
+
 Extract metadata from common life-science electron microscopy data in
 [OSC-EM](https://github.com/osc-em) format.
 
@@ -12,9 +13,17 @@ Extract metadata from common life-science electron microscopy data in
 
 Binaries for Mac, Linux, and Windows can be downloaded from our
 [releases](https://github.com/SwissOpenEM/LS_Metadata_reader/releases) page.
+
+You can run with docker using the latest image like:
+
+```sh
+docker run --rm -v $PWD:/data -w /data oscem-life:latest -o out.json tutorial
+```
+
 Alternately, you can compile from source by running:
 
 ```sh
+cd cmd/LS_Metadata_reader
 go build -o LS_metadata_reader .
 ```
 
@@ -44,7 +53,6 @@ is available in the mdoc files.
    SerialEM automization script selection). Otherwise SerialEM output will lack a few
    required fields for the schema.
 
-
 ### EPU and TOMO5
 
 Some instrument data is not available in EPU output. This is normally set in a
@@ -58,17 +66,18 @@ LS_Metadata_reader --c
 
 The configuration file is saved in the following locations depending on your platform:
 
-   - Unix: `$XDG_CONFIG_HOME/LS_Metadata_reader/LS_reader.conf` (usually `$HOME/.config/LS_Metadata_reader/LS_reader.conf`)
-   - MacOS: `$HOME/Library/Application Support/LS_Metadata_reader/LS_reader.conf`
-   - Windows: `%AppData%\LS_Metadata_reader\LS_reader.conf`
+- Unix: `$XDG_CONFIG_HOME/LS_Metadata_reader/LS_reader.conf` (usually
+  `$HOME/.config/LS_Metadata_reader/LS_reader.conf`)
+- MacOS: `$HOME/Library/Application Support/LS_Metadata_reader/LS_reader.conf`
+- Windows: `%AppData%\LS_Metadata_reader\LS_reader.conf`
 
 Config values can also be set using the command line flags:
 
-| Config property | CLI Option | Required | Description |
-| ------------- | -------- | ---------- | --- |
-| CS  | `--cs` | yes |the CS value of the instrument
-| Gainref_FlipRotate | `--gain_flip_rotate` | yes | the orientation of the gain_reference relative to actual data
-| MPCPATH | `--epu` | | Path to EPU metadata directory
+| Config property    | CLI Option           | Required | Description                                                   |
+| ------------------ | -------------------- | -------- | ------------------------------------------------------------- |
+| CS                 | `--cs`               | yes      | the CS value of the instrument                                |
+| Gainref_FlipRotate | `--gain_flip_rotate` | yes      | the orientation of the gain_reference relative to actual data |
+| MPCPATH            | `--epu`              |          | Path to EPU metadata directory                                |
 
 EPU writes its metadata files in a different directory than its actual data (TOMO5 also
 keeps some additional info that is processed by the LS_Metadata_reader there). It
@@ -84,8 +93,10 @@ for convenience.*
 
 ### Suggestions
 
-Use the associated OpenEM [tool](https://github.com/SwissOpenEM/epu_dataset_merger) which will allow you to automate moving all the required metadata (and some more useful data thats in the EPUs internal folders) into your datasets. Can be automated via e.g. crontab.
-
+Use the associated OpenEM [tool](https://github.com/SwissOpenEM/epu_dataset_merger)
+which will allow you to automate moving all the required metadata (and some more useful
+data thats in the EPUs internal folders) into your datasets. Can be automated via e.g.
+crontab.
 
 ## Usage
 
@@ -113,10 +124,9 @@ collection. This can be useful for archiving or for later analysis.
 To include additional metadata not supported by the OSC-EM schema, use the `-f` flag.
 This will include all available dataset-level metadata.
 
-Using the --folder flag you can add a custom folder name that contains your xmls/mdocs 
+Using the --folder flag you can add a custom folder name that contains your xmls/mdocs
 (no further nesting!). This is mainly meant for cases where local facilities deviate
 from TFS folder structures when making data available to users.
-
 
 ## SciCat Ingestor integration
 
@@ -149,9 +159,10 @@ This will automatically download and install the LS_Metadata_extractor with the
 specified version.
 
 ## Schema
-Output is compatible to OSCEM schemas https://github.com/osc-em/OSCEM_Schemas/
+
+Output is compatible with [OSCEM schemas](https://github.com/osc-em/OSCEM_Schemas/).
 
 Specific schema used to generate standard schema conform output (works for SPA and
 Tomography):
-https://github.com/osc-em/OSCEM_Schemas/blob/linkml_yaml/src/oscem_schemas/schema/oscem_schemas_tomo.yaml
+<https://github.com/osc-em/OSCEM_Schemas/blob/linkml_yaml/src/oscem_schemas/schema/oscem_schemas_tomo.yaml>
 with LinkML gen-golang
