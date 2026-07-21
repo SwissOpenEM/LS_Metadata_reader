@@ -91,12 +91,6 @@ machine you are running oscem-extractor-life on, as those are most likely NOT th
 The extractor will work regardless if pointed to the xmls/mdocs directly, this is just
 for convenience.*
 
-The following folders are searched for mdoc or xml files (where `$INPUT` and `$EPUDIR` are the values of `-i` and `--epu` respectively):
-
-- `$INPUT/*.{xml,mdoc}`
-- `$INPUT/**/{Data,Batch}/*.{xml,mdoc}`
-- `$EPUDIR/$(basename $INPUT)/**/{Data,Batch}/*.{xml,mdoc}`
-
 ### Suggestions
 
 Use the associated OpenEM [tool](https://github.com/SwissOpenEM/epu_dataset_merger)
@@ -125,14 +119,27 @@ usage with EPU, pointing to the top level directory is enough; it will search fo
 data folders and extract the info from there.
 
 Using `-z` you can also obtain a zip file of the xml files associated with your data
-collection. This can be useful for archiving or for later analysis.
+collection. This can be useful for archiving or for later analysis. The zip will is
+added to the current directory and named `./xmls.zip`.
 
 To include additional metadata not supported by the OSC-EM schema, use the `-f` flag.
 This will include all available dataset-level metadata.
 
-Using the --folder flag you can add a custom folder name that contains your xmls/mdocs
+Using the --folder_filter flag you can add a custom folder name that contains your xmls/mdocs
 (no further nesting!). This is mainly meant for cases where local facilities deviate
-from TFS folder structures when making data available to users.
+from TFS folder structures when making data available to users. Otherwise the `Data`
+and `Batch` directories will be searched for metadata.
+
+### Metadata file search path
+
+The following folders are searched for mdoc or xml files. Here `$INPUT` and `$EPUDIR`
+are the values of `-i` and `--epu` respectively. The `$FOLDER` part matches either
+`Data` or `Batch` by default, but additional folders can be searched by specifying the
+`--folder_filter` regex.
+
+- `$INPUT/*.{xml,mdoc}`
+- `$INPUT/**/$FOLDER/*.{xml,mdoc}`
+- `$EPUDIR/$(basename $INPUT)/**/$FOLDER/*.{xml,mdoc}`
 
 ## SciCat Ingestor integration
 
