@@ -77,7 +77,7 @@ Config values can also be set using the command line flags:
 | ------------------ | -------------------- | -------- | ------------------------------------------------------------- |
 | CS                 | `--cs`               | yes      | the CS value of the instrument                                |
 | Gainref_FlipRotate | `--gain_flip_rotate` | yes      | the orientation of the gain_reference relative to actual data |
-| MPCPATH            | `--epu`              |          | Path to EPU metadata directory                                |
+| MPCPATH            | `--epu`              |          | Path to EPU metadata directory (must end in /)                |
 
 EPU writes its metadata files in a different directory than its actual data (TOMO5 also
 keeps some additional info that is processed by the oscem-extractor-life there). It
@@ -90,6 +90,12 @@ it at a OffloadData directory.
 machine you are running oscem-extractor-life on, as those are most likely NOT the same.
 The extractor will work regardless if pointed to the xmls/mdocs directly, this is just
 for convenience.*
+
+The following folders are searched for mdoc or xml files (where `$INPUT` and `$EPUDIR` are the values of `-i` and `--epu` respectively):
+
+- `$INPUT/*.{xml,mdoc}`
+- `$INPUT/**/{Data,Batch}/*.{xml,mdoc}`
+- `$EPUDIR/$(basename $INPUT)/**/{Data,Batch}/*.{xml,mdoc}`
 
 ### Suggestions
 
